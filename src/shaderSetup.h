@@ -237,4 +237,12 @@ namespace ShaderSetup
     void UpdateSkyCycle(float dt);
     void StartSkyCycle(float dayHold, float nightHold, float transitionDuration, float nightAmount);
     void StopSkyCycle();
+    void SetSkyInstant(float value);
+    void StopSkyTransition();
+    void StartSkyTransition(float targetValue, float duration);
+    void UpdateSkyTransition(float dt);
+    void ApplyLevelDefaultSky();
+    void ToggleSkyTransition(float duration);
+    Vector3 GetCurrentSkyFogColor();
+    Vector3 GetCurrentSkyTopFogColor();
 }

@@ -8,6 +8,7 @@
 #include "rlgl.h"
 #include "utilities.h"
 #include "camera_system.h"
+#include "shaderSetup.h"
 
 
 ResourceManager* ResourceManager::_instance = nullptr;
@@ -525,8 +526,8 @@ void ResourceManager::SetTerrainShaderValues(){ //plus palm tree shader
 
 
     // --- Fog and sky
-    Vector3 skyTop  = {0.55f, 0.75f, 1.00f};
-    Vector3 skyHorz = {0.60f, 0.80f, 0.95f};
+    Vector3 skyTop  = ShaderSetup::GetCurrentSkyTopFogColor();
+    Vector3 skyHorz = ShaderSetup::GetCurrentSkyFogColor();//{0.60f, 0.80f, 0.95f};
     float fogStart  = 0.0f;
     float fogEnd    = 18000.0f;
     float seaLevel  = 400.0f;
@@ -706,11 +707,13 @@ void ResourceManager::UpdateShaders(Camera& camera){
     int camPosLoc = GetShaderLocation(terrainShader, "cameraPos");
     int tFogStartLoc = GetShaderLocation(terrainShader, "u_FogStart");
     int vignettModeLoc = GetShaderLocation(fogShader, "vignetteMode");
-
+    int fogColorLoc = GetShaderLocation(terrainShader, "u_SkyColorHorizon");
     //Move this to ShaderSetup
     float fogStart = (currentGameState == GameState::Menu) ? 10000 : 100;
+
     //SetShaderValue(R.GetShader("treeShader"), fogStartLoc, &fogStart, SHADER_UNIFORM_FLOAT);
-    
+    Vector3 fogColor = ShaderSetup::GetCurrentSkyFogColor();
+    SetShaderValue(terrainShader, fogColorLoc, &fogColor, SHADER_UNIFORM_VEC3); //use current sky color
     SetShaderValue(terrainShader, tFogStartLoc, &fogStart, SHADER_UNIFORM_FLOAT);
     
     //distance based desaturation on terrain needs camera pos

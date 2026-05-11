@@ -389,6 +389,8 @@ namespace ShaderSetup
         
         int locCam_Trees   = GetShaderLocation(R.GetShader("treeShader"),   "cameraPos");
         int fogLoc = GetShaderLocation(R.GetShader("treeShader"), "u_FogStart");
+        Vector3 fogColor =  GetCurrentSkyFogColor();
+        SetShaderValue(R.GetShader("treeShader"), ts.loc_skyHorz, &fogColor, SHADER_UNIFORM_VEC3);
         SetShaderValue(R.GetShader("treeShader"),   locCam_Trees,   &camPos, SHADER_UNIFORM_VEC3);
         SetShaderValue(R.GetShader("treeShader"), fogLoc, &fogStart, SHADER_UNIFORM_FLOAT);
         
@@ -492,5 +494,131 @@ namespace ShaderSetup
             } break;
         }
     }
+
+
+    void SetSkyInstant(float value)
+    {
+        ShaderSetup::SkyShader& ss = gSky;
+
+        value = Clamp01(value);
+
+        ss.skyTransition = value;
+
+        ss.gSkyTransitionActive = false;
+        ss.gSkyTransitionTimer = 0.0f;
+        ss.gSkyTransitionStart = value;
+        ss.gSkyTransitionTarget = value;
+    }
+
+    void StopSkyTransition()
+    {
+        ShaderSetup::SkyShader& ss = gSky;
+
+        ss.gSkyTransitionActive = false;
+        ss.gSkyTransitionTimer = 0.0f;
+        ss.gSkyTransitionStart = ss.skyTransition;
+        ss.gSkyTransitionTarget = ss.skyTransition;
+    }
+
+    void ToggleSkyTransition(float duration)
+    {
+        float nightTarget = isDungeon ? 1.0f : 0.8f; //don't go full night time on island levels. 
+        float target = (ShaderSetup::gSky.skyTransition < 0.5f) ? nightTarget : 0.0f;
+        StartSkyTransition(target, duration);
+    }
+
+    void StartSkyTransition(float targetValue, float duration)
+    {
+        ShaderSetup::SkyShader& ss = gSky;
+        ss.gSkyTransitionStart = ss.skyTransition;
+        ss.gSkyTransitionTarget = Clamp01(targetValue);
+
+        ss.gSkyTransitionTimer = 0.0f;
+        ss.gSkyTransitionDuration = duration;
+
+        if (ss.gSkyTransitionDuration <= 0.0f)
+        {
+            ss.skyTransition = ss.gSkyTransitionTarget;
+            ss.gSkyTransitionActive = false;
+            return;
+        }
+
+        ss.gSkyTransitionActive = true;
+    }
+
+    void UpdateSkyTransition(float dt)
+    {
+        
+        ShaderSetup::SkyShader& ss = gSky;
+        if (!ss.gSkyTransitionActive)
+            return;
+
+        ss.gSkyTransitionTimer += dt;
+
+        float t = ss.gSkyTransitionTimer / ss.gSkyTransitionDuration;
+        t = SmoothStep01(t);
+
+        ss.skyTransition =
+            ss.gSkyTransitionStart +
+            (ss.gSkyTransitionTarget - ss.gSkyTransitionStart) * t;
+
+        if (ss.gSkyTransitionTimer >= ss.gSkyTransitionDuration)
+        {
+            ss.skyTransition = ss.gSkyTransitionTarget;
+            ss.gSkyTransitionActive = false;
+        }
+    }
+
+    void ApplyLevelDefaultSky()
+    {
+
+        StopSkyTransition();
+
+        if (CurrentLevelIs("Ship"))
+        {
+            SetSkyInstant(0.0f); // ship starts day
+        }
+        else if (isDungeon)
+        {
+            SetSkyInstant(1.0f); // normal dungeons start night
+        }
+        else
+        {
+            SetSkyInstant(0.0f); // islands start day
+        }
+    }
+
+    Vector3 GetCurrentSkyFogColor()
+    {
+        // skyAmount: 0 = day, 1 = night
+        float t = gSky.skyTransition;
+
+        Vector3 dayFog   = {0.60f, 0.80f, 0.95f};
+        Vector3 nightFog = { 0.0f, 0.0f, 0.0f };
+
+        return {
+            Lerp(dayFog.x, nightFog.x, t),
+            Lerp(dayFog.y, nightFog.y, t),
+            Lerp(dayFog.z, nightFog.z, t)
+        };
+    }
+
+    Vector3 GetCurrentSkyTopFogColor()
+    {
+        // skyAmount: 0 = day, 1 = night
+        float t = gSky.skyTransition;
+
+        Vector3 dayFog   = {0.55f, 0.75f, 1.00f};
+        Vector3 nightFog = { 0.0f, 0.0f, 0.0f };
+
+        return {
+            Lerp(dayFog.x, nightFog.x, t),
+            Lerp(dayFog.y, nightFog.y, t),
+            Lerp(dayFog.z, nightFog.z, t)
+        };
+    }
+
+
+
 
 }

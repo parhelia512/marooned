@@ -9,6 +9,7 @@
 #include "sound_manager.h"
 #include "vegetation.h"
 #include "dungeonGeneration.h"
+#include "shaderSetup.h"
 
 
 InputMode currentInputMode = InputMode::KeyboardMouse;
@@ -22,7 +23,7 @@ void debugControls(Camera& camera, float deltaTime){
     if (debugInfo){
 
         if (IsKeyPressed(KEY_U)){
-            ToggleSkyTransition(5.0f);
+            ShaderSetup::ToggleSkyTransition(5.0f);
         }
 
         if (IsKeyPressed(KEY_J)){

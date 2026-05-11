@@ -38,7 +38,7 @@ void UpdateMenuState(Camera3D& camera, Player& player, float deltaTime, float el
     R.UpdateShaders(camera);
     UpdateShadersPerFrame(deltaTime, elapsedTime, camera);
 
-    UpdateSkyTransition(deltaTime);
+    ShaderSetup::UpdateSkyTransition(deltaTime);
     ShaderSetup::UpdateSkyCycle(deltaTime);
     
 
@@ -174,7 +174,7 @@ void UpdatePlayingFrame(Camera3D& camera, Player& player, float dt, float elapse
     debugControls(camera, dt);
 
     R.UpdateShaders(camera);
-    UpdateSkyTransition(dt);
+    ShaderSetup::UpdateSkyTransition(dt);
     if (!isDungeon) ShaderSetup::UpdateSkyCycle(dt); //day night cycle on island maps only. 
     
     UpdateShadersPerFrame(dt, elapsedTime, camera);

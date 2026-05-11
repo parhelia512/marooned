@@ -101,12 +101,30 @@
     },
 
     "workbench.colorCustomizations": {
-    "activityBar.background": "#1f1b24",
-    "sideBar.background": "#19171d",
-    "statusBar.background": "#3b2f4a",
-    "titleBar.activeBackground": "#1f1b24",
-    "tab.activeBorder": "#c586c0"
-}
+        "activityBar.background": "#1f1b24",
+        "sideBar.background": "#19171d",
+        "statusBar.background": "#3b2f4a",
+        "statusBar.debuggingBackground": "#5b3f7a",
+        "statusBar.debuggingForeground": "#ffffff",
+        "titleBar.activeBackground": "#2c2734",
+        "tab.activeBorder": "#c586c0",
 
+        "editor.background":"#25252a"
+    },
+
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": [
+                    "entity.name.function",
+                    "support.function",
+                    "meta.function-call"
+                ],
+                "settings": {
+                    "foreground": "#f2ebb6"
+                }
+            }
+        ]
+    }
 
 }
