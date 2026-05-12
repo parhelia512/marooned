@@ -703,19 +703,39 @@ void ResourceManager::UpdateShaders(Camera& camera){
 
     int fogStartLoc = GetShaderLocation(treeShader, "u_FogStart");
 
-
+    //terrain fog locs
     int camPosLoc = GetShaderLocation(terrainShader, "cameraPos");
     int tFogStartLoc = GetShaderLocation(terrainShader, "u_FogStart");
     int vignettModeLoc = GetShaderLocation(fogShader, "vignetteMode");
     int fogColorLoc = GetShaderLocation(terrainShader, "u_SkyColorHorizon");
+    int fogColorTopLoc = GetShaderLocation(terrainShader, "u_SkyColorTop");
+    int useFogLoc = GetShaderLocation(terrainShader, "u_UseFog");
+
+    //tree fog locs
+    int useFogLocT = GetShaderLocation(treeShader, "u_UseFog");
+    int treeFogTopLoc = GetShaderLocation(treeShader, "u_SkyColorTop");
+    int treeFogHorzLoc = GetShaderLocation(treeShader, "u_SkyColorHorizon");
+    int modelNightDarknessLoc = GetShaderLocation(treeShader, "u_ModelNightDarkness");
     //Move this to ShaderSetup
+
     float fogStart = (currentGameState == GameState::Menu) ? 10000 : 100;
+    int useFog = (currentGameState == GameState::Menu) ? 0 : 1; //dont render fog in menu. 
+
+    SetShaderValue( terrainShader, useFogLoc, &useFog, SHADER_UNIFORM_INT);
+
+    SetShaderValue(treeShader, useFogLocT, &useFog, SHADER_UNIFORM_INT);
+    
+
 
     //SetShaderValue(R.GetShader("treeShader"), fogStartLoc, &fogStart, SHADER_UNIFORM_FLOAT);
     Vector3 fogColor = ShaderSetup::GetCurrentSkyFogColor();
+    Vector3 topFogColor = ShaderSetup::GetCurrentSkyTopFogColor();
     SetShaderValue(terrainShader, fogColorLoc, &fogColor, SHADER_UNIFORM_VEC3); //use current sky color
+    SetShaderValue(terrainShader, fogColorTopLoc, &topFogColor, SHADER_UNIFORM_VEC3);
     SetShaderValue(terrainShader, tFogStartLoc, &fogStart, SHADER_UNIFORM_FLOAT);
-    
+
+    SetShaderValue(treeShader, treeFogHorzLoc, &fogColor, SHADER_UNIFORM_VEC3);
+    SetShaderValue(treeShader, treeFogTopLoc, &topFogColor, SHADER_UNIFORM_VEC3);
     //distance based desaturation on terrain needs camera pos
     SetShaderValue(terrainShader, camPosLoc, &camPos, SHADER_UNIFORM_VEC3);
 
@@ -750,6 +770,12 @@ void ResourceManager::UpdateShaders(Camera& camera){
 
     //distance fog
     int locCam_Terrain = GetShaderLocation(terrainShader, "cameraPos");
+    float nightDarkness = ShaderSetup::gSky.skyTransition;
+    //float modelNightDarkness = ShaderSetup::gSky.skyTransition;
+
+    SetShaderValue(treeShader, modelNightDarknessLoc, &nightDarkness, SHADER_UNIFORM_FLOAT);
+
+    SetShaderValue(terrainShader,GetShaderLocation(terrainShader, "u_TerrainNightDarkness"),&nightDarkness,SHADER_UNIFORM_FLOAT);
     SetShaderValue(terrainShader, locCam_Terrain, &camPos, SHADER_UNIFORM_VEC3);
 
 }

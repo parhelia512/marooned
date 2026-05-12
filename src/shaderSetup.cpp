@@ -74,6 +74,10 @@ namespace ShaderSetup
         ws.loc_waterColor    = GetShaderLocation(sh, "u_waterColor");
         ws.loc_isSwamp       = GetShaderLocation(sh, "u_isSwamp");
 
+        ws.loc_skyColorTop   = GetShaderLocation(sh, "u_SkyColorTop");
+        ws.loc_skyColorHorz  = GetShaderLocation(sh, "u_SkyColorHorizon");
+        ws.loc_skyReflectStrength  = GetShaderLocation(sh, "u_SkyReflectionStrength");
+        ws.loc_waterNightDark  = GetShaderLocation(sh, "u_WaterNightDarkness");
 
     }
 
@@ -123,6 +127,19 @@ namespace ShaderSetup
             Clamp(camera.position.x, minX, maxX),
             Clamp(camera.position.z, minZ, maxZ)
         };
+
+        float nightT = ShaderSetup::gSky.skyTransition;
+
+        float waterReflectStrength = Lerp(0.25f, 0.65f, nightT);
+        float waterNightDarkness   = nightT;
+
+        Vector3 skyTop     = ShaderSetup::GetCurrentSkyTopFogColor();
+        Vector3 skyHorizon = ShaderSetup::GetCurrentSkyFogColor();
+
+        SetShaderValue(sh, ws.loc_skyColorTop, &skyTop, SHADER_UNIFORM_VEC3);
+        SetShaderValue(sh, ws.loc_skyColorHorz, &skyHorizon, SHADER_UNIFORM_VEC3);
+        SetShaderValue(sh, ws.loc_skyReflectStrength, &waterReflectStrength, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(sh, ws.loc_waterNightDark, &waterNightDarkness, SHADER_UNIFORM_FLOAT);
 
         SetShaderValue(sh, ws.loc_WaterCenterXZ, &centerXZ,       SHADER_UNIFORM_VEC2);
         SetShaderValue(sh, ws.loc_cameraPos,     &camera.position, SHADER_UNIFORM_VEC3);
@@ -411,6 +428,15 @@ namespace ShaderSetup
             &ss.skyTransition,
             SHADER_UNIFORM_FLOAT
         );
+
+        SetShaderValue(sh, GetShaderLocation(sh, "u_SunsetHorizonColor"),
+                    &ss.sunsetHorizon, SHADER_UNIFORM_VEC3);
+
+        SetShaderValue(sh, GetShaderLocation(sh, "u_SunsetZenithColor"),
+                    &ss.sunsetZenith, SHADER_UNIFORM_VEC3);
+
+        SetShaderValue(sh, GetShaderLocation(sh, "u_SunsetStrength"),
+                    &ss.sunsetStrength, SHADER_UNIFORM_FLOAT);
 
 
     }

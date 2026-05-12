@@ -8,6 +8,10 @@ uniform int   isDungeon;  // 0 = overworld/day; 1 = dungeon/starfield
 uniform int   isSwamp;
 uniform float skyTransition; // 0.0 = day, 1.0 = night
 
+uniform vec3 u_SunsetHorizonColor;
+uniform vec3 u_SunsetZenithColor;
+uniform float u_SunsetStrength; // try 1.0
+
 // ------------------------------------------------------------
 // Small helpers
 // ------------------------------------------------------------
@@ -132,6 +136,33 @@ vec3 RenderDaySky(vec3 dir)
 
     // Then: place the disk by mixing
     col = mix(col, sunCol, sunDisk);
+
+    return col;
+}
+
+
+// ------------------------------------------------------------
+// Sunset sky
+// ------------------------------------------------------------
+
+vec3 RenderSunsetSky(vec3 dir)
+{
+    float h = clamp(dir.y * 0.5 + 0.5, 0.0, 1.0);
+
+    // Strongest orange/pink near horizon, darker purple-blue overhead.
+    vec3 sunsetSky = mix(
+        u_SunsetHorizonColor,
+        u_SunsetZenithColor,
+        pow(h, 1.35)
+    );
+
+    // Moving clouds, but warm/twilight tinted.
+    float cloud = fbm3f(dir * 3.0 + vec3(0.0, time * 0.01, 0.0));
+    float mask = smoothstep(0.55, 0.70, cloud);
+
+    vec3 sunsetClouds = vec3(1.0, 0.50, 0.25);
+
+    vec3 col = mix(sunsetSky, sunsetClouds, mask * 0.55);
 
     return col;
 }
@@ -464,25 +495,33 @@ vec3 RenderNightSky(vec3 dir)
     return col;
 }
 
+float SunsetWindow(float t)
+{
+    float fadeIn  = smoothstep(0.10, 0.35, t);
+    float fadeOut = 1.0 - smoothstep(0.60, 0.85, t);
+
+    return fadeIn * fadeOut;
+}
+
 // ------------------------------------------------------------
 // Main
 // ------------------------------------------------------------
+
 void main()
 {
     vec3 dir = normalize(vDir);
 
-    vec3 dayCol   = RenderDaySky(dir);
-    vec3 nightCol = RenderNightSky(dir);
+    vec3 dayCol    = RenderDaySky(dir);
+    vec3 sunsetCol = RenderSunsetSky(dir);
+    vec3 nightCol  = RenderNightSky(dir);
 
     float skyMix = clamp(skyTransition, 0.0, 1.0);
 
-    // Optional: keep dungeons forced to night
-    // if (isDungeon == 1)
-    // {
-    //     skyMix = 1.0;
-    // }
+    float sunsetAmount = SunsetWindow(skyMix);
+    sunsetAmount = clamp(sunsetAmount * u_SunsetStrength, 0.0, 1.0);
 
     vec3 col = mix(dayCol, nightCol, skyMix);
+    col = mix(col, sunsetCol, sunsetAmount);
 
     finalColor = vec4(pow(col, vec3(1.0 / 2.2)), 1.0);
 }
@@ -490,16 +529,40 @@ void main()
 // {
 //     vec3 dir = normalize(vDir);
 
-//     vec3 col;
+//     vec3 dayCol    = RenderDaySky(dir);
+//     vec3 sunsetCol = RenderSunsetSky(dir);
+//     vec3 nightCol  = RenderNightSky(dir);
 
-//     if (isDungeon == 1)
-//     {
-//         col = RenderNightSky(dir);
-//     }
-//     else
-//     {
-//         col = RenderDaySky(dir);
-//     }
+//     float skyMix = clamp(skyTransition, 0.0, 1.0);
+
+//     // 0 at day, 1 in the middle of transition, 0 again at night.
+//     float sunsetAmount = sin(skyMix * 3.14159265);
+//     sunsetAmount = clamp(sunsetAmount * u_SunsetStrength, 0.0, 1.0);
+
+//     // Base day-to-night blend.
+//     vec3 col = mix(dayCol, nightCol, skyMix);
+
+//     // Add sunset as a middle-transition color wash.
+//     col = mix(col, sunsetCol, sunsetAmount);
+
+//     finalColor = vec4(pow(col, vec3(1.0 / 2.2)), 1.0);
+// }
+// void main()
+// {
+//     vec3 dir = normalize(vDir);
+
+//     vec3 dayCol   = RenderDaySky(dir);
+//     vec3 nightCol = RenderNightSky(dir);
+
+//     float skyMix = clamp(skyTransition, 0.0, 1.0);
+
+//     // Optional: keep dungeons forced to night
+//     // if (isDungeon == 1)
+//     // {
+//     //     skyMix = 1.0;
+//     // }
+
+//     vec3 col = mix(dayCol, nightCol, skyMix);
 
 //     finalColor = vec4(pow(col, vec3(1.0 / 2.2)), 1.0);
 // }

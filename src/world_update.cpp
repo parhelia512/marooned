@@ -36,11 +36,11 @@ void UpdateMenuState(Camera3D& camera, Player& player, float deltaTime, float el
     CameraSystem::Get().Update(deltaTime);
 
     R.UpdateShaders(camera);
+    
     UpdateShadersPerFrame(deltaTime, elapsedTime, camera);
 
     ShaderSetup::UpdateSkyTransition(deltaTime);
     ShaderSetup::UpdateSkyCycle(deltaTime);
-    
 
     drawCeiling = false;
 

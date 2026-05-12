@@ -300,7 +300,7 @@ void InitLevel(LevelData& level, Camera& camera) {
         ShaderSetup::StartSkyCycle(
             0.0f, // day hold
             120.0f, // night hold
-            30.0f,  // transition
+            15.0f,  // transition
             0.95f    // outdoor night/twilight amount
         );
     }

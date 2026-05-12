@@ -71,6 +71,11 @@ namespace ShaderSetup
         int loc_waterColor    = -1;
         int loc_isSwamp       = -1;
 
+        int loc_skyColorTop = -1;
+        int loc_skyColorHorz = -1;
+        int loc_skyReflectStrength = -1;
+        int loc_waterNightDark = -1;
+
         // Constants / tunables
         float patchHalf  = 8000.0f;   // u_PatchHalfSize
         float fadeStart  = 10000.0f;  // u_FadeStart
@@ -168,13 +173,21 @@ namespace ShaderSetup
         // Stored params
         int   isSwamp = 0;   // 0/1
         int   isDungeon = 0;
-        float skyTransition = 0.0f; // 0 = day, 1 = night
 
+        //Transition
+        float skyTransition = 0.0f; // 0 = day, 1 = night
         bool  gSkyTransitionActive = false;
         float gSkyTransitionStart = 0.0f;
         float gSkyTransitionTarget = 0.0f;
         float gSkyTransitionTimer = 0.0f;
         float gSkyTransitionDuration = 1.0f;
+
+        //Sunset
+        // Vector3 sunsetHorizon = { 0.55f, 0.34f, 0.22f }; // muted warm orange
+        // Vector3 sunsetZenith  = { 0.08f, 0.06f, 0.13f }; // muted purple navy
+        Vector3 sunsetHorizon = { 1.0f, 0.28f, 0.08f };  // hot orange
+        Vector3 sunsetZenith  = { 0.12f, 0.06f, 0.22f }; // purple upper sky
+        float sunsetStrength  = 0.25f;
 
         float timeSec   = 0.0f;
     };
