@@ -78,8 +78,8 @@ namespace ShaderSetup
 
         // Constants / tunables
         float patchHalf  = 8000.0f;   // u_PatchHalfSize
-        float fadeStart  = 10000.0f;  // u_FadeStart
-        float fadeEnd    = 16000.0f;  // u_FadeEnd
+        float fadeStart  = 8500.0f;  // u_FadeStart
+        float fadeEnd    = 20000.0f;  // u_FadeEnd
         float feather    = 600.0f;    // used for clamping center
         int   isSwamp    = 0;
         // World bounds inputs (store these so Update() can clamp)
@@ -153,7 +153,7 @@ namespace ShaderSetup
         Vector3 skyTop  = {0.55f, 0.75f, 1.00f};
         Vector3 skyHorz = {0.60f, 0.80f, 0.95f};
         float fogStart  = 0.0f;
-        float fogEnd    = 18000.0f;
+        float fogEnd    = 16000.0f;
         float seaLevel  = 400.0f;
         float falloff   = 0.002f;
 

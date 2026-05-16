@@ -59,26 +59,27 @@ void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
         rlDisableBackfaceCulling(); rlDisableDepthMask(); rlDisableDepthTest();
         DrawModel(R.GetModel("skyModel"), camera.position, 10000.0f, WHITE);
         rlEnableDepthMask(); rlEnableDepthTest();
-        BeginBlendMode(BLEND_ALPHA);
-        DrawWaterPlane();
-        
+        //BeginBlendMode(BLEND_ALPHA);
+
+
         if (!isDungeon){
 
             DrawTerrainGrid(terrain, camera, menuDrawDist); //draw the chunks
 
             DrawBoat(player_boat);
             HandleWaves(camera); //update water plane bob. 
-
-            BeginShaderMode(R.GetShader("cutoutShader"));
             DrawTrees(trees, camera); 
             DrawBushes(bushes); //alpha cuttout bushes as well as tree leaf
             DrawOverworldProps();
-            EndShaderMode();
+
 
 
         }
-
-
+        rlDisableDepthMask();
+        //rlDisableDepthTest();
+        DrawWaterPlane();
+        rlEnableDepthMask();
+        rlEnableDepthTest();
         DrawDungeonGeometry(camera, 20000);
         DrawPowerUps(player, camera, dt);
         DrawDungeonPillars();

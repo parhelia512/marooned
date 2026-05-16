@@ -451,7 +451,8 @@ void ResourceManager::SetTerrainShaderValues(){ //plus palm tree shader
 
     Shader& sh = R.GetShader("terrainShader");
     //
-    Vector3 oceanColor = {0.25, 0.60, 1.0};
+    Vector3 oceanColor = {0.25, 0.73, 1.0};
+    //Vector3 oceanColor = {0.42f, 0.64f, 0.86f};
     Vector3 swampColor = {0.32, 0.45, 0.30};//{0.32, 0.45, 0.35};
     Vector3 waterColor = (CurrentLevelIs("Swamp")) ? swampColor : oceanColor;
 
@@ -528,8 +529,8 @@ void ResourceManager::SetTerrainShaderValues(){ //plus palm tree shader
     // --- Fog and sky
     Vector3 skyTop  = ShaderSetup::GetCurrentSkyTopFogColor();
     Vector3 skyHorz = ShaderSetup::GetCurrentSkyFogColor();//{0.60f, 0.80f, 0.95f};
-    float fogStart  = 0.0f;
-    float fogEnd    = 18000.0f;
+    float fogStart  = 8500.0f;
+    float fogEnd    = 20000.0f;
     float seaLevel  = 400.0f;
     float falloff   = 0.002f;
 
@@ -718,7 +719,7 @@ void ResourceManager::UpdateShaders(Camera& camera){
     int modelNightDarknessLoc = GetShaderLocation(treeShader, "u_ModelNightDarkness");
     //Move this to ShaderSetup
 
-    float fogStart = (currentGameState == GameState::Menu) ? 10000 : 100;
+    float fogStart = (currentGameState == GameState::Menu) ? 5000 : 100;
     int useFog = 1;//(currentGameState == GameState::Menu) ? 0 : 1; //dont render fog in menu. 
 
     SetShaderValue( terrainShader, useFogLoc, &useFog, SHADER_UNIFORM_INT);

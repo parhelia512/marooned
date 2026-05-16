@@ -180,33 +180,12 @@ MainMenu::Layout MainMenu::ComputeOptionsLayout(float menuX, float baseY, float 
 
     L.selectable[0] = MakeButtonRect(cx, baseY + 75.0f, sliderW, sliderH); // Mouse Sensitivity
     L.selectable[1] = MakeButtonRect(cx, baseY + 175.0f, sliderW, sliderH); // Draw Distance
+    L.selectable[2] = MakeButtonRect(cx, baseY + 275.0f, sliderW, sliderH); // FOV
 
-    L.selectable[2] = MakeButtonRect(cx, baseY + 390.0f, btnW, btnH);       // Back
+    L.selectable[3] = MakeButtonRect(cx, baseY + 390.0f, btnW, btnH);       // Back
 
     return L;
 }
-
-// MainMenu::Layout MainMenu::ComputeOptionsLayout(float menuX, float baseY, float gapY, float btnW, float btnH)
-// {
-//     float cx = menuX + btnW * 0.5f;
-
-//     Layout L{};
-//     L.selectable[0] = MakeButtonRect(cx, baseY + gapY, btnW, btnH); // Mouse Sensitivity
-//     L.selectable[1] = MakeButtonRect(cx, baseY + gapY, btnW, btnH); // Draw Distance
-//     L.selectable[1] = MakeButtonRect(cx, baseY + gapY*5.0f, btnW, btnH); // Back
-
-//     return L;
-// }
-
-// MainMenu::Layout MainMenu::ComputeOptionsLayout(float menuX, float baseY, float gapY, float btnW, float btnH)
-// {
-//     float cx = menuX + btnW * 0.5f;
-
-//     Layout L{};
-//     L.selectable[0] = MakeButtonRect(cx, baseY + gapY*5.0f, btnW, btnH); // Back
-
-//     return L;
-// }
 
 
 static inline void DrawMenuButtonRounded(Rectangle r, bool selected, float alphaMul = 1.0f, bool title = false)
@@ -748,6 +727,9 @@ namespace MainMenu
                         return Action::None; // draw distance slider
 
                     case 2:
+                        return Action::None; // FOV
+
+                    case 3:
                         return Action::Back;
                 }
 
@@ -876,6 +858,13 @@ namespace MainMenu
                 GameSettings::maxDrawDistLimit
             );
 
+            HandleSliderMouse(
+                L.selectable[2],
+                GameSettings::fovY,
+                GameSettings::minFovY,
+                GameSettings::maxFovY
+            );
+
             bool leftPressed =
                 IsKeyPressed(KEY_LEFT) ||
                 (IsGamepadAvailable(0) && IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT));
@@ -919,6 +908,23 @@ namespace MainMenu
                     maxDrawDist,
                     GameSettings::minDrawDist,
                     GameSettings::maxDrawDistLimit
+                );
+            }
+
+            if (s.selectedOption == 2)
+            {
+                float step = 1.0f;
+
+                if (leftPressed)
+                    GameSettings::fovY -= step;
+
+                if (rightPressed)
+                    GameSettings::fovY += step;
+
+                GameSettings::fovY = Clamp(
+                    GameSettings::fovY,
+                    GameSettings::minFovY,
+                    GameSettings::maxFovY
                 );
             }
 
@@ -1078,11 +1084,13 @@ namespace MainMenu
 
             Rectangle rSensitivity = optL.selectable[0];
             Rectangle rDrawDist    = optL.selectable[1];
-            Rectangle rBack        = optL.selectable[2];
+            Rectangle rFov         = optL.selectable[2];
+            Rectangle rBack        = optL.selectable[3];
 
             bool selSensitivity = (s.selectedOption == 0);
             bool selDrawDist    = (s.selectedOption == 1);
-            bool selBack        = (s.selectedOption == 2);
+            bool selFov         = (s.selectedOption == 2);
+            bool selBack        = (s.selectedOption == 3);
 
             DrawSlider(
                 pieces,
@@ -1103,6 +1111,17 @@ namespace MainMenu
                 GameSettings::maxDrawDistLimit,
                 selDrawDist,
                 false
+            );
+
+            DrawSlider(
+                pieces,
+                rFov,
+                "FOV",
+                GameSettings::fovY,
+                GameSettings::minFovY,
+                GameSettings::maxFovY,
+                selFov,
+                true
             );
 
             DrawMenuButtonRounded(rBack, selBack);

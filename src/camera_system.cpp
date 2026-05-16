@@ -4,6 +4,7 @@
 #include "world.h"
 #include "rlgl.h"
 #include "utilities.h"
+#include "game_settings.h"
 
 DeathCamState deathCam;
 
@@ -20,7 +21,7 @@ void CameraSystem::Init(const Vector3& startPos) {
     playerRig.cam.position = startPos;
     playerRig.cam.target   = Vector3Add(startPos, {0,0,1});
     playerRig.cam.up       = {0,1,0};
-    playerRig.cam.fovy     = playerRig.fov;
+    playerRig.cam.fovy     = GameSettings::fovY;
 
     playerRig.cam.projection = CAMERA_PERSPECTIVE;
 
@@ -75,7 +76,7 @@ void CameraSystem::SetFarClip(float farClip) {
 }
 
 Camera3D& CameraSystem::Active() {
-    if (mode == CamMode::Player)      { playerRig.cam.fovy = playerRig.fov; return playerRig.cam; }
+    if (mode == CamMode::Player)      { playerRig.cam.fovy = GameSettings::fovY; return playerRig.cam; }
     else if (mode == CamMode::Free)   { freeRig.cam.fovy   = freeRig.fov;   return freeRig.cam;  }
     else                              { cinematicRig.cam.fovy = cinematicRig.fov; return cinematicRig.cam; }
 }
@@ -277,60 +278,6 @@ void CameraSystem::StartDeathCam(float dungeonFloorY, float terrainFloorY)
 }
 
 
-// void CameraSystem::StartDeathCam(float dungeonFloorY, float terrainFloorY)
-// {
-
-//     Camera& cam = playerRig.cam;
-    
-//     deathCam.startPos    = cam.position;
-//     deathCam.startTarget = cam.target;
-
-//     Vector3 forward = Vector3Subtract(cam.target, cam.position);
-//     float len2 = forward.x*forward.x + forward.y*forward.y + forward.z*forward.z;
-
-//     if (len2 < 0.000001f) {
-//         // Fallback forward if camera target/pos are degenerate
-//         forward = { 0, 0, 1 };
-//     } else {
-//         forward = Vector3Scale(forward, 1.0f / sqrtf(len2));
-//     }
-
-//     Vector3 forwardTurned = RotateY(forward, DEG2RAD * deathCam.endYawDeg);
-
-
-//     // --- decide floor Y ---
-//     float floorY = isDungeon ? dungeonFloorY : terrainFloorY;
-
-//     // Small offset so camera doesn't clip into floor
-//     const float eyeOffset = 75.0f;
-
-//     // --- end position ---
-//     deathCam.endPos = {
-//         cam.position.x,
-//         floorY + eyeOffset,
-//         cam.position.z
-//     };
-
-//     // Small forward slide feels more natural than straight drop
-//     deathCam.endPos = Vector3Add(
-//         deathCam.endPos,
-//         Vector3Scale(forward, 10.0f)
-//     );
-
-//     // --- end target (look slightly down) ---
-//     deathCam.endTarget = Vector3Add(
-//         deathCam.endPos,
-//         Vector3Scale(forwardTurned, 100.0f)
-//     );
-//     deathCam.endTarget.y -= 20.0f;
-
-//     // Reset timer
-//     deathCam.t = 0.0f;
-//     deathCam.duration = 2.0f;
-
-//     mode = CamMode::Death;
-// }
-
 void CameraSystem::UpdateDeathCam(float dt)
 {
     deathCam.t += dt;
@@ -364,32 +311,6 @@ void CameraSystem::UpdateDeathCam(float dt)
     // Slight downward look
     cam.target.y -= 20.0f;
 }
-
-
-// void CameraSystem::UpdateDeathCam(float dt)
-// {
-
-//     deathCam.t += dt;
-//     float t = deathCam.t / deathCam.duration;
-//     if (t > 1.0f) t = 1.0f;
-
-//     // Ease-out cubic (feels like collapse)
-//     float e = 1.0f - powf(1.0f - t, 3.0f);
-
-//     Camera& cam = playerRig.cam;
-    
-//     cam.position = Vector3Lerp(
-//         deathCam.startPos,
-//         deathCam.endPos,
-//         e
-//     );
-
-//     cam.target = Vector3Lerp(
-//         deathCam.startTarget,
-//         deathCam.endTarget,
-//         e
-//     );
-// }
 
 
 void CameraSystem::StartCinematic(const CinematicDesc& desc) {

@@ -138,7 +138,7 @@ void EnterMenu() {
 
     } else {
         cd.focus  = { 0.0f, 0.0f, 0.0f };            // set to your island center
-        cd.radius = 12000.0f;
+        cd.radius = 10000.0f;
         cd.height = 3500.0f;
         cd.startAngleDeg = 180.0f;                   // starts on -Z side
 
@@ -165,7 +165,7 @@ void InitMenuLevel(LevelData& level){
 
     CinematicDesc cd;
     cd.focus = { 0, 0, 0 };        // whatever looks good on your island
-    cd.radius = 12000.0f;
+    cd.radius = 10000.0f;
     cd.height = 3500.0f;
     cd.orbitSpeedDeg = 2.0f;       // slow
     cd.posSmooth = 1.5f;
@@ -571,8 +571,10 @@ bool CurrentLevelIs(const std::string& name)
 
 void DrawWaterPlane()
 {
-    if (!CurrentLevelIs("Ship"))
+    if (!CurrentLevelIs("Ship")){
         return;
+    }
+
 
     float dungeonWorldWidth  = dungeonWidth  * tileSize;
     float dungeonWorldHeight = dungeonHeight * tileSize;

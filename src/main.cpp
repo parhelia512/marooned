@@ -33,8 +33,9 @@ int main() {
 
     //we stopped targeting 60 FPS, so frame rate is uncapped. 
     //Before making a new build, enable vsync so it maches the users monitor.
-    SetConfigFlags(FLAG_VSYNC_HINT);
 
+    //SetConfigFlags(FLAG_VSYNC_HINT); //disable for uncapped frame rate
+    
     InitWindow(screenWidth, screenHeight, "Marooned");
 
     InitAudioDevice();

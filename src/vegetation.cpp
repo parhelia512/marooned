@@ -426,7 +426,7 @@ void RemoveAllVegetation() {
 
 
 void DrawTrees(const std::vector<TreeInstance>& trees, Camera& camera){
-    float cullDist = 50000;
+    float cullDist = maxDrawDist;
     for (const TreeInstance* tree : sortedTrees) {
         float dist = Vector3Distance(tree->position, camera.position);
         Vector3 pos = tree->position;
@@ -451,7 +451,7 @@ void DrawTrees(const std::vector<TreeInstance>& trees, Camera& camera){
 }
 
 void DrawBushes(const std::vector<BushInstance>& bushes) {
-    float cullDistance = 15000.0f;
+    float cullDistance = maxDrawDist;
     for (const auto& bush : bushes) {
         float distanceTo = Vector3Distance(player.position, bush.position);
 

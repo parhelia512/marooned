@@ -130,7 +130,7 @@ namespace ShaderSetup
 
         float nightT = ShaderSetup::gSky.skyTransition;
 
-        float waterReflectStrength = Lerp(0.25f, 0.65f, nightT);
+        float waterReflectStrength = 1.0f;//Lerp(0.25f, 0.65f, nightT);
         float waterNightDarkness   = nightT;
 
         Vector3 skyTop     = ShaderSetup::GetCurrentSkyTopFogColor();
