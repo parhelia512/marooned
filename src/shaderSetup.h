@@ -249,6 +249,7 @@ namespace ShaderSetup
 
     void UpdateSkyCycle(float dt);
     void StartSkyCycle(float dayHold, float nightHold, float transitionDuration, float nightAmount);
+    void SetSkyCycleTimer(float amount);
     void StopSkyCycle();
     void SetSkyInstant(float value);
     void StopSkyTransition();

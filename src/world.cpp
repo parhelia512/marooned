@@ -62,7 +62,7 @@ float vignetteFade = 0.0f;
 int vignetteMode = 0;
 float vignetteStrengthValue = 0.2;
 float bloomStrengthValue = 0.0;
-float maxDrawDist = 15000.0f;
+//float maxDrawDist = 15000.0f;
 float menuDrawDist = 50000.0f;
 
 float fadeSpeed = 1.0f; // units per second
@@ -302,11 +302,24 @@ void InitLevel(LevelData& level, Camera& camera) {
     if (CurrentLevelIs("MiddleIsland")) //start day night cycle. 
     {
         ShaderSetup::StartSkyCycle(
-            0.0f, // day hold
+            30.0f, // day hold
+            30.0f, // night hold
+            15.0f,  // transition
+            0.95f    // outdoor night/twilight amount
+        );
+    }
+
+    if (CurrentLevelIs("River")) //start day night cycle. 
+    {
+        ShaderSetup::StartSkyCycle(
+            30.0f, // day hold
             120.0f, // night hold
             15.0f,  // transition
             0.95f    // outdoor night/twilight amount
         );
+        
+        ShaderSetup::SetSkyCycleTimer(30.0f); //start night immediatly, but keep day hold hat 30 for later. 
+      
     }
 
     

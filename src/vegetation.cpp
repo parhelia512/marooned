@@ -11,6 +11,7 @@
 #include "algorithm"
 #include "shadows.h"
 #include "utilities.h"
+#include "game_settings.h"
 
 
 std::vector<TreeInstance> swampTrees;
@@ -426,7 +427,7 @@ void RemoveAllVegetation() {
 
 
 void DrawTrees(const std::vector<TreeInstance>& trees, Camera& camera){
-    float cullDist = maxDrawDist;
+    float cullDist = GameSettings::maxDrawDist;
     for (const TreeInstance* tree : sortedTrees) {
         float dist = Vector3Distance(tree->position, camera.position);
         Vector3 pos = tree->position;
@@ -451,7 +452,7 @@ void DrawTrees(const std::vector<TreeInstance>& trees, Camera& camera){
 }
 
 void DrawBushes(const std::vector<BushInstance>& bushes) {
-    float cullDistance = maxDrawDist;
+    float cullDistance = GameSettings::maxDrawDist;
     for (const auto& bush : bushes) {
         float distanceTo = Vector3Distance(player.position, bush.position);
 

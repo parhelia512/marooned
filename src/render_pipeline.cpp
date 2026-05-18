@@ -16,6 +16,7 @@
 #include "main_menu.h"
 #include "portal.h"
 #include "raft.h"
+#include "game_settings.h"
 
 
 static int lastW = 0;
@@ -159,14 +160,14 @@ void RenderFrame(Camera3D& camera, Player& player, float dt) {
 
             //float maxDrawDist = 15000.0f; //lowest it can be before terrain popping in is noticable. 
 
-            DrawTerrainGrid(terrain, camera, maxDrawDist); //draw the chunks
+            DrawTerrainGrid(terrain, camera, GameSettings::maxDrawDist); //draw the chunks
 
             HandleWaves(camera); //update water plane bob. 
 
 
             rlEnableDepthTest();
             rlDisableDepthMask();         // don’t write depth for transparent water
-            if (!debugInfo) DrawModel(R.GetModel("waterModel"), {0,0,0}, 1.0f, WHITE); // Don't draw water model, shader colors the water
+            DrawModel(R.GetModel("waterModel"), {0,0,0}, 1.0f, WHITE); // shader colors the water
             rlEnableDepthMask();
         
             DrawBoat(player_boat);

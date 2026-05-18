@@ -853,7 +853,7 @@ namespace MainMenu
 
             HandleSliderMouse(
                 L.selectable[1],
-                maxDrawDist,
+                GameSettings::maxDrawDist,
                 GameSettings::minDrawDist,
                 GameSettings::maxDrawDistLimit
             );
@@ -899,13 +899,13 @@ namespace MainMenu
                 float step = 1000.0f;
 
                 if (leftPressed)
-                    maxDrawDist -= step;
+                   GameSettings::maxDrawDist -= step;
 
                 if (rightPressed)
-                    maxDrawDist += step;
+                    GameSettings::maxDrawDist += step;
 
-                maxDrawDist = Clamp(
-                    maxDrawDist,
+                GameSettings::maxDrawDist = Clamp(
+                    GameSettings::maxDrawDist,
                     GameSettings::minDrawDist,
                     GameSettings::maxDrawDistLimit
                 );
@@ -1095,7 +1095,7 @@ namespace MainMenu
             DrawSlider(
                 pieces,
                 rSensitivity,
-                "Mouse Sensitivity",
+                "Look Sensitivity",
                 GameSettings::mouseSensitivity,
                 GameSettings::minMouseSensitivity,
                 GameSettings::maxMouseSensitivity,
@@ -1106,7 +1106,7 @@ namespace MainMenu
                 pieces,
                 rDrawDist,
                 "Draw Distance",
-                maxDrawDist,
+                GameSettings::maxDrawDist,
                 GameSettings::minDrawDist,
                 GameSettings::maxDrawDistLimit,
                 selDrawDist,

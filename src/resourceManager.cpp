@@ -369,6 +369,29 @@ void ResourceManager::LoadAllResources() {
 
 }
 
+Vector3 MakeTerrainWaterColor(Vector3 skyTopColor, bool isSwamp)
+{
+    if (isSwamp)
+        return { 0.32f, 0.45f, 0.30f };
+
+    Vector3 oceanBlue = { 0.10f, 0.55f, 1.00f };
+
+    float blueMix = 0.45f; // higher = bluer, lower = more sky-colored
+
+    Vector3 c = {
+        Lerp(skyTopColor.x, oceanBlue.x, blueMix),
+        Lerp(skyTopColor.y, oceanBlue.y, blueMix),
+        Lerp(skyTopColor.z, oceanBlue.z, blueMix)
+    };
+
+    c.x = Clamp(c.x, 0.0f, 1.0f);
+    c.y = Clamp(c.y, 0.0f, 1.0f);
+    c.z = Clamp(c.z, 0.0f, 1.0f);
+
+    return c;
+}
+
+
 
 
 void ResourceManager::SetGhostShaderValues(){
@@ -451,7 +474,7 @@ void ResourceManager::SetTerrainShaderValues(){ //plus palm tree shader
 
     Shader& sh = R.GetShader("terrainShader");
     //
-    Vector3 oceanColor = {0.25, 0.73, 1.0};
+    Vector3 oceanColor = MakeTerrainWaterColor(ShaderSetup::GetCurrentSkyTopFogColor(), false);//{0.25, 0.73, 1.0};
     //Vector3 oceanColor = {0.42f, 0.64f, 0.86f};
     Vector3 swampColor = {0.32, 0.45, 0.30};//{0.32, 0.45, 0.35};
     Vector3 waterColor = (CurrentLevelIs("Swamp")) ? swampColor : oceanColor;
@@ -685,6 +708,7 @@ void ResourceManager::SetLightingShaderValues()
 }
 
 
+
 void ResourceManager::UpdateShaders(Camera& camera){
     //SetWaterShaderValues(camera); //update water every frame
     //runs every frame, updates all shaders
@@ -725,7 +749,11 @@ void ResourceManager::UpdateShaders(Camera& camera){
     SetShaderValue( terrainShader, useFogLoc, &useFog, SHADER_UNIFORM_INT);
 
     SetShaderValue(treeShader, useFogLocT, &useFog, SHADER_UNIFORM_INT);
-    
+
+    //dynamic terrain water color
+    Vector3 oceanColor = MakeTerrainWaterColor(ShaderSetup::GetCurrentSkyTopFogColor(), false);
+    int waterColorLoc = GetShaderLocation(terrainShader, "u_waterColor");
+    if (!CurrentLevelIs("Swamp")) SetShaderValue(terrainShader, waterColorLoc, &oceanColor, SHADER_UNIFORM_VEC3);
 
 
     //SetShaderValue(R.GetShader("treeShader"), fogStartLoc, &fogStart, SHADER_UNIFORM_FLOAT);
