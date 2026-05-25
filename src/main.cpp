@@ -60,6 +60,7 @@ int main() {
     InitMenuLevel(levels[0]);
     //InitLevel(levels[levelIdx], CameraSystem::Get().Active());
     levelIndex = LoadLastLevel();
+
     if (LoadLastLevel() > 0){
         MainMenu::InitLevelPreviewFromSavedLevel();
     }
@@ -106,6 +107,7 @@ int main() {
 
     // Cleanup
     SaveLastLevel(gCurrentLevelIndex);
+
     ClearLevel();
     ResourceManager::Get().UnloadAll();
     SoundManager::GetInstance().UnloadAll();

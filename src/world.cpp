@@ -91,7 +91,7 @@ bool enteredDungeon1 = false;
 // bool squareRes = false;
 // bool showTutorial = true;
 
-int gCurrentLevelIndex = -1;
+int gCurrentLevelIndex = 0;
 
 FadePhase gFadePhase = FadePhase::Idle;
 Model oceanModel;
