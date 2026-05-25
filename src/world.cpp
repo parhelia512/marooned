@@ -1420,6 +1420,10 @@ void ClearLevel() {
     g_powerUps.clear();
     SpawnManager::Clear();
     EventLockAllDoors(false);
+    gFloorInstanceSources.clear();
+    gGrayFloorInstancing.transforms.clear();
+    gWoodFloorInstancing.transforms.clear();
+
 
     
      //unload mesh and heightmap when switching levels. if they exist
