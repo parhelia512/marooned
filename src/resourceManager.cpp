@@ -216,6 +216,8 @@ void ResourceManager::LoadAllResources() {
 
     R.LoadFont("Pieces", "assets/fonts/PiecesOfEight.ttf", 128, 1);
     R.LoadFont("Kingthings", "assets/fonts/KingthingsPetrock.ttf", 128, 1);
+    R.LoadFont("jetBrains", "assets/fonts/JetBrainsMono-Bold.ttf");
+    R.LoadFont("terminal", "assets/fonts/VT323-Regular.ttf");
 
     //Resources are saved to unordered maps, with a string key. Get a resource by calling R.GetModel("blunderbuss") for example. 
     R.LoadTexture("raptorTexture",      "assets/sprites/bigRaptorSheet.png");
@@ -291,6 +293,10 @@ void ResourceManager::LoadAllResources() {
 
     // Models (registering with string keys)
     R.LoadModel("palmTree",               "assets/Models/bigPalmTree.glb");
+
+    R.LoadModel("palmTreeInstanced", "assets/Models/bigPalmTree.glb");
+     R.LoadModel("bushInstanced",    "assets/Models/grass(stripped).glb");
+
     R.LoadModel("palm2",                  "assets/Models/smallPalmTree.glb");
     R.LoadModel("bush",                   "assets/Models/grass(stripped).glb");
     R.LoadModel("boatModel",              "assets/Models/boat.glb");
@@ -361,7 +367,7 @@ void ResourceManager::LoadAllResources() {
     R.LoadShader("ceilingShader",  "assets/shaders/ceiling.vs",            "assets/shaders/ceiling.fs");
     R.LoadShader("ghostShader",    "assets/shaders/ghost_raft.vs",         "assets/shaders/ghost_raft.fs");
     R.LoadShader("floorInstancedLightingShader", "assets/shaders/floor_instanced_lighting.vs", "assets/shaders/floor_instanced_lighting.fs");
-
+    R.LoadShader("tree_instanced", "assets/shaders/tree_instanced.vs",     "assets/shaders/tree_instanced.fs");
 
 
 }
@@ -388,6 +394,28 @@ Vector3 MakeTerrainWaterColor(Vector3 skyTopColor, bool isSwamp)
     return c;
 }
 
+void ResourceManager::SetTreeInstancedShaderValues(){
+
+    Shader& instancedTreeShader = GetShader("tree_instanced");
+
+    R.GetModel("palmTree").materials[0].shader = instancedTreeShader;
+    R.GetModel("bush").materials[0].shader = instancedTreeShader;
+
+    instancedTreeShader.locs[SHADER_LOC_MATRIX_MVP] =
+        GetShaderLocation(instancedTreeShader, "mvp");
+
+    instancedTreeShader.locs[SHADER_LOC_MAP_DIFFUSE] =
+        GetShaderLocation(instancedTreeShader, "texture0");
+
+    instancedTreeShader.locs[SHADER_LOC_COLOR_DIFFUSE] =
+        GetShaderLocation(instancedTreeShader, "colDiffuse");
+
+    int alphaCutoffLoc = GetShaderLocation(instancedTreeShader, "alphaCutoff");
+    float alphaCutoff = 0.3f;
+    SetShaderValue(instancedTreeShader, alphaCutoffLoc, &alphaCutoff, SHADER_UNIFORM_FLOAT);
+
+
+}
 
 
 

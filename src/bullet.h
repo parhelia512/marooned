@@ -43,7 +43,7 @@ public:
     bool enemy;
     bool fireball = false;
     float age;
-    float maxLifetime;
+    float maxLifetime = 4.0f;
     float lifeTime;
     float timeSinceImpact = 0.0f;
     float timer;

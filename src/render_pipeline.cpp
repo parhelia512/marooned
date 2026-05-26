@@ -17,6 +17,9 @@
 #include "portal.h"
 #include "raft.h"
 #include "game_settings.h"
+#include "debug_overlay.h"
+#include "shaderSetup.h"
+#include "vegetation_instanced.h"
 
 
 static int lastW = 0;
@@ -69,8 +72,9 @@ void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
 
             DrawBoat(player_boat);
             HandleWaves(camera); //update water plane bob. 
-            DrawTrees(trees, camera); 
-            DrawBushes(bushes); //alpha cuttout bushes as well as tree leaf
+            VegetationInstanced::Draw(camera);
+            //DrawTrees(trees, camera); 
+            //DrawBushes(bushes); //alpha cuttout bushes as well as tree leaf
             DrawOverworldProps();
 
 
@@ -172,8 +176,9 @@ void RenderFrame(Camera3D& camera, Player& player, float dt) {
         
             DrawBoat(player_boat);
 
-            DrawTrees(trees, camera); 
-            DrawBushes(bushes); //alpha cuttout bushes as well as tree leaf
+            VegetationInstanced::Draw(camera);
+            //DrawTrees(trees, camera); 
+            //DrawBushes(bushes); //alpha cuttout bushes as well as tree leaf
 
             //DrawDungeonDoorways();          
             DrawDungeonGeometry(camera, 10000);
@@ -291,13 +296,20 @@ void RenderFrame(Camera3D& camera, Player& player, float dt) {
 
             }
 
-            if (debugInfo) { //Press ~ for debug mode. 
-                DrawTimer(ElapsedTime);
-                DrawText("PRESS TAB FOR FREE CAMERA", GetScreenWidth()/2, 15, 20, WHITE);
-                //show FPS over top of lightmap
-                DrawText(TextFormat("%d FPS", GetFPS()), 350, 10, 20, WHITE);
-
+            if (debugInfo) {
+                DebugOverlayInfo overlayInfo;
+                UpdateOverlayInfo(overlayInfo);
+                DrawDebugOverlay(overlayInfo);
+                
             }
+
+            // if (debugInfo) { //Press ~ for debug mode. 
+            //     DrawTimer(ElapsedTime);
+            //     DrawText("PRESS TAB FOR FREE CAMERA", GetScreenWidth()/2, 15, 20, WHITE);
+            //     //show FPS over top of lightmap
+            //     DrawText(TextFormat("%d FPS", GetFPS()), 350, 10, 20, WHITE);
+
+            // }
             
         } 
     EndDrawing();

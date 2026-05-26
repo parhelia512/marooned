@@ -21,6 +21,7 @@
 #include "switch_tile.h"
 #include "powerUps.h"
 #include "spawn_manager.h"
+#include "game_settings.h"
 
 // std::vector<Matrix> grayFloorTransforms;
 // std::vector<Matrix> woodFloorTransforms;
@@ -203,6 +204,8 @@ static void DrawFloorBatch(FloorInstancing& batch)
 {
     if (!batch.initialized) return;
     if (batch.transforms.empty()) return;
+
+
 
     DrawMeshInstanced(
         batch.mesh,
@@ -3065,6 +3068,9 @@ void DrawDungeonGeometry(Camera& camera, float maxDrawDist){
 
     BuildVisibleFloorTileInstanceTransforms(camera, maxDrawDist);
 
+    GameSettings::gTotalFloorTileCount = (int)gFloorInstanceSources.size();
+    GameSettings::gVisibleFloorTileCount = (int)gGrayFloorInstancing.transforms.size(); 
+
     // TraceLog(LOG_INFO, "visible gray floors = %i / sources = %i",
     //     (int)gGrayFloorInstancing.transforms.size(),
     //     (int)gFloorInstanceSources.size());
@@ -3072,6 +3078,8 @@ void DrawDungeonGeometry(Camera& camera, float maxDrawDist){
     //Floors
     DrawFloorBatch(gGrayFloorInstancing);
     DrawFloorBatch(gWoodFloorInstancing);
+
+    
 
 
     //Lava floor

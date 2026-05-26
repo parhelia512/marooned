@@ -423,6 +423,7 @@ void RemoveAllVegetation() {
     trees.clear();
     bushes.clear();
     sortedTrees.clear();
+
 }
 
 

@@ -34,7 +34,7 @@ void Crossbow::FireHarpoon(Camera& camera) {
     swappedModelMidDip = false;
     harpoonTimer = 0.0f;
     Vector3 camForward = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
-    FireCrossbowHarpoon(muzzlePos, camForward, 2000.0f, 2.0f, false);
+    FireCrossbowHarpoon(muzzlePos, camForward, 2000.0f, 4.0f, false);
     SoundManager::GetInstance().Play("crossbowFire");
     SoundManager::GetInstance().Play("harpoon");
 

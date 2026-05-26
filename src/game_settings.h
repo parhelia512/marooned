@@ -4,6 +4,7 @@ namespace GameSettings
 {
     inline bool squareRes = false; // set true for 1024x1024, false for widescreen
     inline bool showTutorial = true;
+    inline bool useVsync = false;
 
     inline float mouseSensitivity = 0.05f;
 
@@ -18,4 +19,7 @@ namespace GameSettings
     inline float maxDrawDist = 20000.0f;
     inline constexpr float minDrawDist = 5000.0f;
     inline constexpr float maxDrawDistLimit = 50000.0f;
+
+    inline int gVisibleFloorTileCount;
+    inline int gTotalFloorTileCount;
 }

@@ -25,6 +25,10 @@
 #include "switch_tile.h"
 #include "raft.h"
 #include "shaderSetup.h"
+#include "game_settings.h"
+#include "vegetation_instanced.h"
+
+
 
 
 GameState currentGameState = GameState::Menu;
@@ -155,7 +159,9 @@ void InitMenuLevel(LevelData& level){
     ImageFormat(&heightmap, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
     terrain = BuildTerrainGridFromHeightmap(heightmap, terrainScale, 193, true); //193 bigger chunks less draw calls.
     GenerateEntrances();
-    generateVegetation(); //vegetation checks entrance positions. generate after assinging entrances.
+    VegetationInstanced::Generate();
+    VegetationInstanced::InitShader();
+    //generateVegetation(); //vegetation checks entrance positions. generate after assinging entrances.
 
     InitBoat(player_boat,Vector3{0.0, -75, 0.0});
     R.SetShaderValues();
@@ -237,6 +243,7 @@ void InitLevel(LevelData& level, Camera& camera) {
     ClearLevel();//clears everything.
     enemies.reserve(100); 
 
+
     CameraSystem::Get().StopCinematic();
     CameraSystem::Get().SetMode(CamMode::Player);
     //CameraSystem::Get().SnapAllToPlayer(); //put freecam at player pos
@@ -275,8 +282,10 @@ void InitLevel(LevelData& level, Camera& camera) {
 
     dungeonEntrances = level.entrances; //get level entrances from level data
     GenerateEntrances();
-    generateVegetation(); //vegetation checks entrance positions. generate after assinging entrances. 
+    //generateVegetation(); //vegetation checks entrance positions. generate after assinging entrances. 
 
+    VegetationInstanced::InitShader();
+    VegetationInstanced::Generate();
     generateRaptors(level.raptorCount, level.raptorSpawnCenter, 6000.0f);
 
     if (level.name == "River" || level.name == "Swamp"){
@@ -397,7 +406,7 @@ void InitLevel(LevelData& level, Camera& camera) {
 
     R.SetShaderValues();
     InitShaders();
-    //R.SetBloomShaderValues();
+
     R.SetTerrainShaderValues();
 
 
@@ -1353,6 +1362,38 @@ void DrawReticle(WeaponType& weaponType){
     
 }
 
+void UpdateOverlayInfo(DebugOverlayInfo& overlayInfo){
+    CamMode mode = CameraSystem::Get().GetMode(); 
+    int freeCam = (mode == CamMode::Free) ? true : false;
+    
+    overlayInfo.elapsedTime = ElapsedTime;
+    overlayInfo.freeCam = freeCam;
+    overlayInfo.useVsync = GameSettings::useVsync;
+    overlayInfo.showCeiling = drawCeiling;
+    overlayInfo.fps = GetFPS();
+    overlayInfo.levelName = levels[gCurrentLevelIndex].name.c_str();
+    overlayInfo.levelIndex = gCurrentLevelIndex;
+    overlayInfo.drawDistance = GameSettings::maxDrawDist;
+    overlayInfo.fovY = CameraSystem::Get().Active().fovy;
+    overlayInfo.visibleFloorTiles = GameSettings::gVisibleFloorTileCount;
+    overlayInfo.totalFoliage = VegetationInstanced::GetTotalInstanceCount();
+    overlayInfo.visibleFoliage = VegetationInstanced::GetVisibleInstanceCount();
+    overlayInfo.totalFloorTiles = GameSettings::gTotalFloorTileCount;
+    overlayInfo.staticLights = dungeonLights.size();
+    overlayInfo.dynamicLights = frameLights.size();
+    overlayInfo.dungeonWidth  = dungeonWidth;
+    overlayInfo.dungeonHeight = dungeonHeight;
+    overlayInfo.lightmapWidth = gDynamic.tex.width;
+    overlayInfo.lightmapHeight = gDynamic.tex.height;
+    overlayInfo.skyTransition = ShaderSetup::gSky.skyTransition;
+    overlayInfo.activeEnemies = enemyPtrs.size();
+    overlayInfo.activeBullets = activeBullets.size();
+    overlayInfo.currentWeapon = WeaponTypeToString(player.activeWeapon);
+    overlayInfo.showFreeCameraHint = true;
+
+
+}
+
 
 void UpdateWorldFrame(float dt, Player& player) {
     // Toggle mode
@@ -1411,6 +1452,7 @@ void ClearLevel() {
     removeAllCharacters();
     ClearDungeon();
     RemoveAllVegetation();
+    VegetationInstanced::Clear();
     activeBullets.clear();
     billboardRequests.clear();
     bulletLights.clear();

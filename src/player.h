@@ -40,7 +40,7 @@ struct Player {
     Vector3 startPosition;
     float startRotationY;
     Vector3 previousPosition;
-    
+
     BoundingBox meleeHitbox;
     BoundingBox blockHitbox;
     MeleeHitVolume meleeVolume;
@@ -170,3 +170,4 @@ void RemoveCarriedBox(Player& player, std::vector<Box>& boxes);
 void HandleJumpButton(float timeNow);
 void OnGroundCheck(bool groundedNow, float timeNow);
 void DrawWeapons(const Player& player, Camera& camera);
+const char* WeaponTypeToString(WeaponType weapon);

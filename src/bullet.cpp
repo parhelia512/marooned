@@ -219,8 +219,10 @@ void Bullet::Update(Camera& camera, float deltaTime) {
         lifeTime -= deltaTime;
     }
 
-
-
+    if (lifeTime <= 0 && type != BulletType::Fireball){ //fireball laucnher fireball need to live longer. 
+        exploded = true;
+        alive = false;
+    }
     if (!alive){
         timeSinceImpact += deltaTime;
     } 
@@ -353,7 +355,7 @@ void Bullet::Update(Camera& camera, float deltaTime) {
        retracting = true;
        retractTip = position;
        velocity = {0,0,0};
-       lifeTime = 9999.0f; // keep it alive while retracting
+       //lifeTime = 9999.0f; // keep it alive while retracting
        if (Vector3Distance(position, player.position) < 100 ){ //what if harpoon never reaches player position
             alive = false;
             exploded = true;
@@ -825,7 +827,7 @@ void FireCrossbowHarpoon(Vector3 origin, Vector3 forward, float speed, float lif
     Bullet harpoon = {origin, vel, lifetime, enemy, BulletType::Harpoon};
     harpoon.rotation =  QuaternionFromVector3ToVector3({0,0,1}, forward);
     harpoon.id = gBulletCounter++;
-    harpoon.lifeTime = 1.5f;
+    harpoon.lifeTime = 2.5f;
     activeBullets.emplace_back(harpoon);
 }
 

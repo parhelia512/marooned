@@ -53,6 +53,7 @@ public:
     void SetCeilingShaderValues();
     void SetGhostShaderValues();
     void SetFloorInstancedLightingShaderValues(FloorInstancing& batch);
+    void SetTreeInstancedShaderValues();
 
 
     // Clean-up

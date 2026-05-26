@@ -24,6 +24,7 @@
 #include "kraken.h"
 #include "cannon.h"
 #include "cannonballPIle.h"
+#include "debug_overlay.h"
 
 enum class GameState {
     Menu,
@@ -181,3 +182,5 @@ void UpdateSlashEffects(float deltaTime);
 void UpdateKraken(float deltaTime);
 void DrawKraken(Camera& camera);
 void SpawnTentacle(Vector3 startPos, bool onRight);
+
+void UpdateOverlayInfo(DebugOverlayInfo& overlayInfo);

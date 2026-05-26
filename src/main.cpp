@@ -26,8 +26,8 @@
 int main() { 
     //square res and show tutorial are now in game settings. 
 
-    //SetConfigFlags(FLAG_VSYNC_HINT); //disable for uncapped frame rate
-
+    if (GameSettings::useVsync) SetConfigFlags(FLAG_VSYNC_HINT); //disable for uncapped frame rate
+    
     int screenWidth = GameSettings::squareRes ? 1024 : 1600;
     int screenHeight = GameSettings::squareRes ? 1024 : 900;
     //normally start 1600x900 window, toggle fullscreen to fit to monitor.
@@ -58,14 +58,11 @@ int main() {
 
     MainMenu::gLevelPreviews = BuildLevelPreviews(true);
     InitMenuLevel(levels[0]);
-    //InitLevel(levels[levelIdx], CameraSystem::Get().Active());
     levelIndex = LoadLastLevel();
 
-    if (LoadLastLevel() > 0){
+    if (LoadLastLevel() > 0){//dont show preview for middle island. 
         MainMenu::InitLevelPreviewFromSavedLevel();
     }
-
-    
 
 
     //main game loop
@@ -105,9 +102,10 @@ int main() {
             break;
     }
 
-    // Cleanup
-    SaveLastLevel(gCurrentLevelIndex);
 
+    SaveLastLevel(gCurrentLevelIndex); //last level that was actually loaded.
+
+    // Cleanup
     ClearLevel();
     ResourceManager::Get().UnloadAll();
     SoundManager::GetInstance().UnloadAll();

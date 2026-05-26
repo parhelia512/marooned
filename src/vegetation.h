@@ -81,12 +81,3 @@ std::vector<T> FilterInstancesOnLand(
     float trunkRadiusWorld
 );
 
-// std::vector<TreeInstance> FilterTreesOnLand(
-//     const std::vector<TreeInstance>& input,
-//     const Image& heightmap,
-//     const unsigned char* pixels,   // 1 byte per pixel height
-//     const Vector3& terrainScale,
-//     float seaLevelWorldY,          // your water plane height in world units
-//     float shoreMarginWorldY,       // how far above sea level a tree must be (e.g. 40..150)
-//     float trunkRadiusWorld         // sampling radius around trunk (e.g. 80..200)
-// );

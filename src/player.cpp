@@ -55,6 +55,17 @@ void InitPlayer(Player& player, Vector3 startPosition) {
     
 }
 
+const char* WeaponTypeToString(WeaponType weapon) {
+    switch (weapon) {
+        case WeaponType::Blunderbuss: return "Blunderbuss";
+        case WeaponType::Sword:       return "Sword";
+        case WeaponType::MagicStaff:  return "Magic Staff";
+        case WeaponType::Crossbow:    return "Crossbow";
+        case WeaponType::None:        return "None";
+        default:                      return "Unknown";
+    }
+}
+
 static inline Vector3 FootSample(const Player& p, float offX, float offZ)
 {
     Vector3 s = p.position;
