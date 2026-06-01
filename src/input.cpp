@@ -51,6 +51,10 @@ void debugControls(Camera& camera, float deltaTime){
     if (CameraSystem::Get().GetMode() == CamMode::Free){
         ControlPlayerWhileFreeCam(deltaTime); //move the player around with the arrow keys while controlling free cam. 
     }
+
+    if (IsKeyPressed(KEY_V)){
+        ToggleVSync();
+    }
 }
 
 void HandleMouseLook(float deltaTime)

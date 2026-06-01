@@ -178,11 +178,14 @@ MainMenu::Layout MainMenu::ComputeOptionsLayout(float menuX, float baseY, float 
     float sliderW = btnW;
     float sliderH = 44.0f;
 
-    L.selectable[0] = MakeButtonRect(cx, baseY + 75.0f, sliderW, sliderH); // Mouse Sensitivity
-    L.selectable[1] = MakeButtonRect(cx, baseY + 175.0f, sliderW, sliderH); // Draw Distance
-    L.selectable[2] = MakeButtonRect(cx, baseY + 275.0f, sliderW, sliderH); // FOV
+    // Tighter vertical spacing than before
+    L.selectable[0] = MakeButtonRect(cx, baseY + 50.0f,  sliderW, sliderH); // Mouse Sensitivity
+    L.selectable[1] = MakeButtonRect(cx, baseY + 150.0f, sliderW, sliderH); // Draw Distance
+    L.selectable[2] = MakeButtonRect(cx, baseY + 250.0f, sliderW, sliderH); // FOV
 
-    L.selectable[3] = MakeButtonRect(cx, baseY + 390.0f, btnW, btnH);       // Back
+    L.selectable[3] = MakeButtonRect(cx, baseY + 310.0f, sliderW, sliderH); // VSync checkbox
+
+    L.selectable[4] = MakeButtonRect(cx, baseY + 395.0f, btnW, btnH);       // Back
 
     return L;
 }
@@ -573,6 +576,79 @@ static int StickNavStep(float stickY, float dt)
     return 0;
 }
 
+static inline void ApplyVSyncSetting()
+{
+    if (GameSettings::useVsync)
+    {
+        SetWindowState(FLAG_VSYNC_HINT);
+    }
+    else
+    {
+        ClearWindowState(FLAG_VSYNC_HINT);
+    }
+}
+
+static void DrawCheckbox(Font font,
+                         Rectangle r,
+                         const char* label,
+                         bool checked,
+                         bool selected)
+{
+    // Label area on the left, square on the right
+    float boxSize = 30.0f;
+
+    Rectangle labelRect = {
+        r.x,
+        r.y,
+        r.width - boxSize - 18.0f,
+        r.height
+    };
+
+    Rectangle box = {
+        r.x + r.width - boxSize - 8.0f,
+        r.y + r.height * 0.5f - boxSize * 0.5f,
+        boxSize,
+        boxSize
+    };
+
+    // Optional subtle selected backing, so keyboard/controller focus is visible
+    if (selected)
+    {
+        Rectangle backing = {
+            r.x - 8.0f,
+            r.y - 5.0f,
+            r.width + 16.0f,
+            r.height + 10.0f
+        };
+
+        DrawRectangleRounded(backing, 0.25f, 12, {242, 212, 164, 80});
+        DrawRectangleRoundedLines(backing, 0.25f, 12, {120, 86, 52, 180});
+    }
+
+    // Text
+    DrawCarvedText(font, label, labelRect, 34.0f, 1.0f, false, selected);
+
+    // Checkbox square
+    Color border = selected ? Color{90, 55, 25, 255}
+                            : Color{100, 70, 40, 255};
+
+    Color fill = checked ? Color{80, 55, 35, 255}
+                         : Color{214, 182, 132, 255};
+
+    Color brown = {80, 55, 35, 255};
+
+    if (checked)
+    {
+        // VSync ON: solid filled brown square, no border
+        DrawRectangleRec(box, brown);
+    }
+    else
+    {
+        // VSync OFF: empty square outline only
+        DrawRectangleLinesEx(box, 2.0f, brown);
+    }
+}
+
 static void DrawSlider(Font font, Rectangle r, const char* label, float value, float minValue, float maxValue, bool selected, bool showValue = true)
 {
     // Label centered above
@@ -732,6 +808,11 @@ namespace MainMenu
                         return Action::None; // FOV
 
                     case 3:
+                        GameSettings::useVsync = !GameSettings::useVsync;
+                        ApplyVSyncSetting();
+                        return Action::None;
+
+                    case 4:
                         return Action::Back;
                 }
 
@@ -973,6 +1054,7 @@ namespace MainMenu
               const LevelData* levels,
               int levelsCount)
     {
+        
         auto& pieces = R.GetFont("Pieces");
         Texture2D& backFade = R.GetTexture("backFade");
 
@@ -995,6 +1077,7 @@ namespace MainMenu
             titleSize.y + padY*2.0f
         };
 
+        
 
         // --- Floating outlined title ---
         DrawStoneOutlinedText(pieces, title, rTitle, titleFontSize, titleSpacing);
@@ -1117,12 +1200,14 @@ namespace MainMenu
             Rectangle rSensitivity = optL.selectable[0];
             Rectangle rDrawDist    = optL.selectable[1];
             Rectangle rFov         = optL.selectable[2];
-            Rectangle rBack        = optL.selectable[3];
+            Rectangle rVsync       = optL.selectable[3];
+            Rectangle rBack        = optL.selectable[4];
 
             bool selSensitivity = (s.selectedOption == 0);
             bool selDrawDist    = (s.selectedOption == 1);
             bool selFov         = (s.selectedOption == 2);
-            bool selBack        = (s.selectedOption == 3);
+            bool selVsync       = (s.selectedOption == 3);
+            bool selBack        = (s.selectedOption == 4);
 
             DrawSlider(
                 pieces,
@@ -1154,6 +1239,14 @@ namespace MainMenu
                 GameSettings::maxFovY,
                 selFov,
                 true
+            );
+
+            DrawCheckbox(
+                pieces,
+                rVsync,
+                "Use VSync",
+                GameSettings::useVsync,
+                selVsync
             );
 
             DrawMenuButtonRounded(rBack, selBack);

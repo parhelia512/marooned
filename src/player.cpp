@@ -961,7 +961,7 @@ constexpr float VOID_COMMIT_FALL = 200.0f;      // how far below the "expected f
 constexpr float VOID_SNAP_MAX_UP = 200.0f;      // max upward snap allowed (prevents big teleports)
 
 void HandleVignette(Player& player, float deltaTime){
-    float baseVignette = 1.0f;
+    float baseVignette = 0.0f;
     if (player.state == PlayerState::Frozen){
         vignetteFade += deltaTime * 0.25; //keep vignette for longer if frozen
     }else if (player.quadDamage){

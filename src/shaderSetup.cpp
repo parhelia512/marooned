@@ -240,8 +240,8 @@ namespace ShaderSetup
         CacheBloomLocations(out);
 
         // Initial defaults (you can change these after init)
-        out.bloomStrength = 0.0f;
-        out.exposure      = 1.0f;
+        out.bloomStrength = 0.0f; //0.0
+        out.exposure      = 1.0f; 
         out.toneOp        = 0;
         out.resolution    = { (float)GetScreenWidth(), (float)GetScreenHeight() };
 

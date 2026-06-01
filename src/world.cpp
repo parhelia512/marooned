@@ -521,9 +521,9 @@ void UpdateFade(Camera& camera, float deltaTime) {
 
     // Only touch the shader when we are not swapping
     if (gFadePhase != FadePhase::Swapping) {
-        Shader& fogShader = R.GetShader("fogShader");
-        int loc = GetShaderLocation(fogShader, "fadeToBlack");
-        SetShaderValue(fogShader, loc, &fadeValue, SHADER_UNIFORM_FLOAT);
+        Shader& bloomShader = R.GetShader("bloomShader");
+        int loc = GetShaderLocation(bloomShader, "fadeToBlack");
+        SetShaderValue(bloomShader, loc, &fadeValue, SHADER_UNIFORM_FLOAT);
     }
 }
 
@@ -1380,6 +1380,7 @@ void UpdateOverlayInfo(DebugOverlayInfo& overlayInfo){
     overlayInfo.useVsync = GameSettings::useVsync;
     overlayInfo.showCeiling = drawCeiling;
     overlayInfo.fps = GetFPS();
+
     overlayInfo.levelName = levels[gCurrentLevelIndex].name.c_str();
     overlayInfo.levelIndex = gCurrentLevelIndex;
     overlayInfo.drawDistance = GameSettings::maxDrawDist;
@@ -1448,6 +1449,22 @@ void TeleportPlayerToEnd(){
             }
 
         }
+    }
+}
+
+void ToggleVSync()
+{
+    GameSettings::useVsync = !GameSettings::useVsync;
+
+    if (GameSettings::useVsync)
+    {
+        SetWindowState(FLAG_VSYNC_HINT);
+        SetTargetFPS(0); // Let vsync control the frame pacing
+    }
+    else
+    {
+        ClearWindowState(FLAG_VSYNC_HINT);
+        SetTargetFPS(0); // Uncapped
     }
 }
 

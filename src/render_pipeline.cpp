@@ -48,10 +48,10 @@ static void EnsureRenderTargetsMatchWindow(RenderTexture2D& rt)
 void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
     //Render level background for menu
     RenderTexture2D& sceneTexture = R.GetRenderTexture("sceneTexture");
-    RenderTexture2D& postTexture = R.GetRenderTexture("postProcessTexture");
+    //RenderTexture2D& postTexture = R.GetRenderTexture("postProcessTexture");
 
     EnsureRenderTargetsMatchWindow(sceneTexture);
-    EnsureRenderTargetsMatchWindow(postTexture);
+    //EnsureRenderTargetsMatchWindow(postTexture);
 
     // --- 3D scene to sceneTexture ---
     BeginTextureMode(R.GetRenderTexture("sceneTexture")); //MENU FRAME
@@ -98,21 +98,21 @@ void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
         rlDisableDepthTest();
     EndTextureMode();
 
-    // --- post to postProcessTexture ---
-    BeginTextureMode(R.GetRenderTexture("postProcessTexture"));
-    {
-        BeginShaderMode(R.GetShader("fogShader"));
-            auto& sceneRT = R.GetRenderTexture("sceneTexture");
-            Rectangle src = { 0, 0,
-                            (float)sceneRT.texture.width,
-                            -(float)sceneRT.texture.height }; // flip Y!
-            Rectangle dst = { 0, 0,
-                            (float)GetScreenWidth(),
-                            (float)GetScreenHeight() };
-            DrawTexturePro(sceneRT.texture, src, dst, {0,0}, 0.0f, WHITE);
-        EndShaderMode();
-    }
-    EndTextureMode();
+    // // --- post to postProcessTexture ---
+    // BeginTextureMode(R.GetRenderTexture("postProcessTexture"));
+    // {
+    //     BeginShaderMode(R.GetShader("fogShader"));
+    //         auto& sceneRT = R.GetRenderTexture("sceneTexture");
+    //         Rectangle src = { 0, 0,
+    //                         (float)sceneRT.texture.width,
+    //                         -(float)sceneRT.texture.height }; // flip Y!
+    //         Rectangle dst = { 0, 0,
+    //                         (float)GetScreenWidth(),
+    //                         (float)GetScreenHeight() };
+    //         DrawTexturePro(sceneRT.texture, src, dst, {0,0}, 0.0f, WHITE);
+    //     EndShaderMode();
+    // }
+    // EndTextureMode();
 
 
 
@@ -120,7 +120,7 @@ void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
     BeginDrawing();
         ClearBackground(WHITE);
         BeginShaderMode(R.GetShader("bloomShader"));
-            auto& post = R.GetRenderTexture("postProcessTexture");
+            auto& post = R.GetRenderTexture("sceneTexture");
             Rectangle src = { 0, 0,
                             (float)post.texture.width,
                             -(float)post.texture.height }; // flip Y!
@@ -142,10 +142,10 @@ void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
 void RenderFrame(Camera3D& camera, Player& player, float dt) {
     //Main Render frame
     RenderTexture2D& sceneTexture = R.GetRenderTexture("sceneTexture");
-    RenderTexture2D& postTexture = R.GetRenderTexture("postProcessTexture");
+    //RenderTexture2D& postTexture = R.GetRenderTexture("postProcessTexture");
 
     EnsureRenderTargetsMatchWindow(sceneTexture);
-    EnsureRenderTargetsMatchWindow(postTexture);
+    //EnsureRenderTargetsMatchWindow(postTexture);
     // --- 3D scene to sceneTexture ---
     BeginTextureMode(R.GetRenderTexture("sceneTexture"));
         ClearBackground(SKYBLUE);
@@ -241,26 +241,26 @@ void RenderFrame(Camera3D& camera, Player& player, float dt) {
     EndTextureMode();
 
     // --- post to postProcessTexture ---
-    BeginTextureMode(R.GetRenderTexture("postProcessTexture"));
-    {
-        BeginShaderMode(R.GetShader("fogShader"));
-            auto& sceneRT = R.GetRenderTexture("sceneTexture");
-            Rectangle src = { 0, 0,
-                            (float)sceneRT.texture.width,
-                            -(float)sceneRT.texture.height }; // flip Y!
-            Rectangle dst = { 0, 0,
-                            (float)GetScreenWidth(),
-                            (float)GetScreenHeight() };
-            DrawTexturePro(sceneRT.texture, src, dst, {0,0}, 0.0f, WHITE);
-        EndShaderMode();
-    }
-    EndTextureMode();
+    // BeginTextureMode(R.GetRenderTexture("postProcessTexture"));
+    // {
+    //     BeginShaderMode(R.GetShader("fogShader"));
+    //         auto& sceneRT = R.GetRenderTexture("sceneTexture");
+    //         Rectangle src = { 0, 0,
+    //                         (float)sceneRT.texture.width,
+    //                         -(float)sceneRT.texture.height }; // flip Y!
+    //         Rectangle dst = { 0, 0,
+    //                         (float)GetScreenWidth(),
+    //                         (float)GetScreenHeight() };
+    //         DrawTexturePro(sceneRT.texture, src, dst, {0,0}, 0.0f, WHITE);
+    //     EndShaderMode();
+    // }
+    // EndTextureMode();
 
     // --- final to backbuffer + UI ---
     BeginDrawing();
         ClearBackground(WHITE);
         BeginShaderMode(R.GetShader("bloomShader"));
-            auto& postRT = R.GetRenderTexture("postProcessTexture");
+            auto& postRT = R.GetRenderTexture("sceneTexture");
             Rectangle src = { 0, 0,
                             (float)postRT.texture.width,
                             -(float)postRT.texture.height }; // flip Y!

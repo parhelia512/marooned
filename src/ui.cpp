@@ -553,7 +553,7 @@ void UpdateMenu(Camera& camera, float dt)
     {
         DisableCursor();
         currentGameState = GameState::Playing;
-        
+        drawCeiling = levels[levelIndex].hasCeiling; //turn the ceiling back on if there is one. 
         CameraSystem::Get().StopCinematic();
         // ShaderSetup::StopSkyCycle();
         // ApplyLevelDefaultSky();
@@ -569,8 +569,9 @@ void UpdateMenu(Camera& camera, float dt)
 
     MainMenu::Layout layout = gMenu.showOptions ? MainMenu::ComputeOptionsLayout(menuX, baseY, gapY, btnW, btnH) : 
     MainMenu::ComputeLayout(menuX, baseY, gapY, btnW, btnH);
-    int oCount = gMenu.showOptions ? 4 : 5;
+    int oCount = gMenu.showOptions ? 5 : 5;
     MainMenu::Action a = MainMenu::Update(gMenu, dt, levelLoaded, oCount, levelIndex, (int)levels.size(), layout);
+    
 
     if (a == MainMenu::Action::StartGame)
     {

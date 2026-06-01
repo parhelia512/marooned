@@ -207,12 +207,12 @@ void ResourceManager::LoadAllResources() {
     SetTextureFilter(scene.texture, TEXTURE_FILTER_BILINEAR);
     SetTextureWrap(scene.texture, TEXTURE_WRAP_CLAMP);
 
-    RenderTexture& post = R.LoadRenderTexture("postProcessTexture", screenResolution.x, screenResolution.y);
-    SetTextureFilter(post.texture, TEXTURE_FILTER_BILINEAR);
-    SetTextureWrap(post.texture, TEXTURE_WRAP_CLAMP);
+    // RenderTexture& post = R.LoadRenderTexture("postProcessTexture", screenResolution.x, screenResolution.y);
+    // SetTextureFilter(post.texture, TEXTURE_FILTER_BILINEAR);
+    // SetTextureWrap(post.texture, TEXTURE_WRAP_CLAMP);
 
     SetTextureWrap(R.GetRenderTexture("sceneTexture").texture, TEXTURE_WRAP_CLAMP);
-    SetTextureWrap(R.GetRenderTexture("postProcessTexture").texture, TEXTURE_WRAP_CLAMP);
+    //SetTextureWrap(R.GetRenderTexture("postProcessTexture").texture, TEXTURE_WRAP_CLAMP);
 
     R.LoadFont("Pieces", "assets/fonts/PiecesOfEight.ttf", 128, 1);
     R.LoadFont("Kingthings", "assets/fonts/KingthingsPetrock.ttf", 128, 1);
@@ -354,7 +354,7 @@ void ResourceManager::LoadAllResources() {
     
     //shaders
     R.LoadShader("terrainShader",  "assets/shaders/height_color.vs",       "assets/shaders/height_color.fs");
-    R.LoadShader("fogShader",      /*vsPath=*/"",                          "assets/shaders/fog_postprocess.fs");
+    //R.LoadShader("fogShader",      /*vsPath=*/"",                          "assets/shaders/fog_postprocess.fs"); //delete me
     R.LoadShader("shadowShader",   "assets/shaders/shadow_decal.vs",       "assets/shaders/shadow_decal.fs");
     R.LoadShader("skyShader",      "assets/shaders/skybox.vs",             "assets/shaders/skybox.fs");
     R.LoadShader("waterShader",    "assets/shaders/water.vs",              "assets/shaders/water.fs");
@@ -457,7 +457,7 @@ void ResourceManager::SetShaderValues(){
 
     Vector2 screenResolution = (Vector2){ (float)GetScreenWidth(), (float)GetScreenHeight() };
     // set shaders values
-    Shader& fogShader = R.GetShader("fogShader");
+    Shader& bloomShader = R.GetShader("bloomShader");
     Shader& shadowShader = R.GetShader("shadowShader");
 
     SetGhostShaderValues();
@@ -465,7 +465,7 @@ void ResourceManager::SetShaderValues(){
     //regular black vignette
     vignetteStrengthValue = isDungeon ? 0.8 : 0.25f; //less of vignette outdoors.
     if (CurrentLevelIs("Ship")) vignetteStrengthValue = 0.0f; // no vignette on ship level
-    SetShaderValue(fogShader, GetShaderLocation(fogShader, "baseVignetteStrength"), &vignetteStrengthValue, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "baseVignetteStrength"), &vignetteStrengthValue, SHADER_UNIFORM_FLOAT);
 
     // Shadow shadows beneath enemies. 
     Model& shadowQuad = R.GetModel("shadowQuad");
@@ -793,8 +793,9 @@ void ResourceManager::UpdateShaders(Camera& camera){
     Shader& waterShader = R.GetShader("waterShader");
     //Shader& skyShader = R.GetShader("skyShader");
     Shader& terrainShader = R.GetShader("terrainShader");
-    Shader& fogShader = R.GetShader("fogShader");
     Shader& treeShader = R.GetShader("treeShader");
+
+    Shader& bloomShader = R.GetShader("bloomShader");
 
     Vector3 camPos = camera.position;
 
@@ -806,7 +807,7 @@ void ResourceManager::UpdateShaders(Camera& camera){
     //terrain fog locs
     int camPosLoc = GetShaderLocation(terrainShader, "cameraPos");
     int tFogStartLoc = GetShaderLocation(terrainShader, "u_FogStart");
-    int vignettModeLoc = GetShaderLocation(fogShader, "vignetteMode");
+    int vignettModeLoc = GetShaderLocation(bloomShader, "vignetteMode");
     int fogColorLoc = GetShaderLocation(terrainShader, "u_SkyColorHorizon");
     int fogColorTopLoc = GetShaderLocation(terrainShader, "u_SkyColorTop");
     int useFogLoc = GetShaderLocation(terrainShader, "u_UseFog");
@@ -828,7 +829,7 @@ void ResourceManager::UpdateShaders(Camera& camera){
     //dynamic terrain water color
     Vector3 oceanColor = MakeTerrainWaterColor(ShaderSetup::GetCurrentSkyTopFogColor(), false);
     int waterColorLoc = GetShaderLocation(terrainShader, "u_waterColor");
-    if (!CurrentLevelIs("Swamp")) SetShaderValue(terrainShader, waterColorLoc, &oceanColor, SHADER_UNIFORM_VEC3);
+    //if (!CurrentLevelIs("Swamp")) SetShaderValue(terrainShader, waterColorLoc, &oceanColor, SHADER_UNIFORM_VEC3);
 
 
     //SetShaderValue(R.GetShader("treeShader"), fogStartLoc, &fogStart, SHADER_UNIFORM_FLOAT);
@@ -844,18 +845,18 @@ void ResourceManager::UpdateShaders(Camera& camera){
     SetShaderValue(terrainShader, camPosLoc, &camPos, SHADER_UNIFORM_VEC3);
 
     //red vignette intensity over time
-    SetShaderValue(fogShader, GetShaderLocation(fogShader, "vignetteIntensity"), &vignetteIntensity, SHADER_UNIFORM_FLOAT);
-    SetShaderValue(fogShader, vignettModeLoc, &vignetteMode, SHADER_UNIFORM_INT);
+    SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "vignetteIntensity"), &vignetteIntensity, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(bloomShader, vignettModeLoc, &vignetteMode, SHADER_UNIFORM_INT);
 
     //dungeonDarkness //is there a reason we need to set these every frame? 
     float dungeonDarkness = -0.1f;//it darkens the gun model as well, so go easy. negative number brightens it. 
     float dungeonContrast = 1.00f; //makes darks darker. 
 
     int isDungeonVal = isDungeon ? 1 : 0; 
-    SetShaderValue(fogShader, GetShaderLocation(fogShader, "resolution"), &screenResolution, SHADER_UNIFORM_VEC2);
-    SetShaderValue(fogShader, GetShaderLocation(fogShader, "isDungeon"), &isDungeonVal, SHADER_UNIFORM_INT);
-    SetShaderValue(fogShader, GetShaderLocation(fogShader, "dungeonDarkness"), &dungeonDarkness, SHADER_UNIFORM_FLOAT);
-    SetShaderValue(fogShader, GetShaderLocation(fogShader, "dungeonContrast"), &dungeonContrast, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "resolution"), &screenResolution, SHADER_UNIFORM_VEC2);
+    SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "isDungeon"), &isDungeonVal, SHADER_UNIFORM_INT);
+    SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "dungeonDarkness"), &dungeonDarkness, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(bloomShader, GetShaderLocation(bloomShader, "dungeonContrast"), &dungeonContrast, SHADER_UNIFORM_FLOAT);
 
     //tree shadows
     // Once (cache locations)

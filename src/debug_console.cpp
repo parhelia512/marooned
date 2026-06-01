@@ -28,6 +28,9 @@ namespace DebugConsole
     static constexpr float OPEN_HEIGHT = 300.0f;
     static constexpr int MAX_LOG_LINES = 12;
 
+    
+    static int gIgnoreTextInputFrames = 0;
+
     Color consoleLogColor = { 180, 125, 70, 255 }; // less saturated, more tan
     Color consoleInputColor = { 255, 238, 205, 255 };
 
@@ -377,12 +380,12 @@ namespace DebugConsole
         // Toggle with ~ / `
         if (IsKeyPressed(KEY_GRAVE))
         {
-
             Toggle();
 
-            // Linux may also queue the grave key as typed text.
-            // Drain it so it doesn't appear in the console input.
+            // Linux/VMs may queue the ` character one or more frames later.
+            gIgnoreTextInputFrames = 3;
             ClearTextInputQueue();
+
             return;
         }
 
@@ -401,13 +404,21 @@ namespace DebugConsole
             return;
         }
 
+        // Ignore text input briefly after opening console.
+        if (gIgnoreTextInputFrames > 0)
+        {
+            gIgnoreTextInputFrames--;
+            ClearTextInputQueue();
+            return;
+        }
+
         // Text input
         int key = GetCharPressed();
 
         while (key > 0)
         {
             // Printable ASCII characters
-            if (key >= 32 && key <= 126)
+            if (key >= 32 && key <= 126 && key != '`' && key != '~') //make damn sure we are not printing ` on console open.
             {
                 gInput.push_back(static_cast<char>(key));
             }
