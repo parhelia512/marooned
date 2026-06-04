@@ -9,6 +9,8 @@
 
 TerrainGrid terrain;
 
+TerrainChunkStats terrainStats;
+
 static inline unsigned char SampleGray(const Image& img, int x, int z) {
     x = std::clamp(x, 0, img.width  - 1);
     z = std::clamp(z, 0, img.height - 1);
@@ -204,19 +206,24 @@ void BuildTerrainChunkDrawList(
     float maxDrawDist,
     int maxChunksToDraw,
     bool disableCulling,
-    std::vector<ChunkDrawInfo>& outList)
+    std::vector<ChunkDrawInfo>& outList,
+    TerrainChunkStats* stats)
 {
     outList.clear();
 
-    // Shared cone parameters (new system)
+    if (stats)
+    {
+        stats->totalChunks = maxChunksToDraw;
+        stats->visibleChunks = 0;
+        stats->candidatesBeforeCap = 0;
+    }
+
     ViewConeParams vp = MakeViewConeParams(
         cam,
-        60.0f,      // half-FOV (you previously used 60)
+        60.0f,
         maxDrawDist,
-        1600.0f     // near chunk distance (old NEAR_CHUNK_DIST)
+        1600.0f
     );
-
-    const float WATER_HEIGHT = 55.0f;
 
     // 1) Collect candidates
     for (const TerrainChunk& c : T.chunks)
@@ -229,26 +236,39 @@ void BuildTerrainChunkDrawList(
             if (distSq > maxDrawDist * maxDrawDist)
                 continue;
 
-            // if (c.aabb.max.y < WATER_HEIGHT && !player.isSwimming)  //Cull underwater tiles.
-            //     continue;
-
             if (!IsInViewCone(vp, c.center))
                 continue;
+
+            if (c.aabb.max.y < waterHeightY){
+                continue;
+            }
         }
 
         outList.push_back({ &c, distSq });
     }
 
+    if (stats)
+    {
+        stats->candidatesBeforeCap = (int)outList.size();
+    }
 
     // 2) Sort by distance
     std::sort(outList.begin(), outList.end(),
-        [](const ChunkDrawInfo& a, const ChunkDrawInfo& b){
+        [](const ChunkDrawInfo& a, const ChunkDrawInfo& b)
+        {
             return a.distSq < b.distSq;
         });
 
     // 3) Hard cap
     if ((int)outList.size() > maxChunksToDraw)
+    {
         outList.resize(maxChunksToDraw);
+    }
+
+    if (stats)
+    {
+        stats->visibleChunks = (int)outList.size();
+    }
 }
 
 
@@ -258,7 +278,9 @@ void DrawTerrainGrid(const TerrainGrid& T, const Camera3D& cam, float maxDrawDis
     rlEnableBackfaceCulling();
     int maxChunksToDraw = disableCulling ? 500 : 250;
     static std::vector<ChunkDrawInfo> drawList;
-    BuildTerrainChunkDrawList(T, cam, maxDrawDist, maxChunksToDraw, disableCulling, drawList);
+
+    BuildTerrainChunkDrawList(T, cam, maxDrawDist, maxChunksToDraw, disableCulling, drawList, &terrainStats);
+
 
     for (const ChunkDrawInfo& info : drawList) {
         const TerrainChunk* c = info.chunk;

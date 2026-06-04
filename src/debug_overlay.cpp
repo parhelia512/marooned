@@ -218,6 +218,15 @@ void DrawDebugOverlay(const DebugOverlayInfo& info) {
     );
     DrawRow("FOLIAGE", buffer);
 
+    std::snprintf(
+        buffer,
+        sizeof(buffer),
+        "%4d / %4d",
+        info.visibleTerrainChunks,
+        info.totalTerrainChunks
+    );
+    DrawRow("Terrain", buffer);
+
     std::snprintf(buffer, sizeof(buffer), "%.0f%%", info.skyTransition * 100.0f);
     DrawRow("SKY", buffer);
 

@@ -160,13 +160,7 @@ void InitMenuLevel(LevelData& level){
     heightmap = LoadImage(level.heightmapPath.c_str());
     ImageFormat(&heightmap, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
     terrain = BuildTerrainGridFromHeightmap(heightmap, terrainScale, 193, true); //193 bigger chunks less draw calls.
-    Grass::GenerateFromHeightmap(
-        heightmap,
-        terrainScale,
-        80.0f,
-        100.0f,
-        2000
-    );  
+    Grass::GenerateFromHeightmap(heightmap, terrainScale, 40.0f, 0.90f, 5000);
     GenerateEntrances();
     VegetationInstanced::Generate();
     VegetationInstanced::InitShader();
@@ -268,13 +262,10 @@ void InitLevel(LevelData& level, Camera& camera) {
     if (!CurrentLevelIs("Ship")){  
         terrain = BuildTerrainGridFromHeightmap(heightmap, terrainScale, 193, true); //193 bigger chunks less draw calls. 
 
-        Grass::GenerateFromHeightmap(
-            heightmap,
-            terrainScale,
-            80.0f,
-            100.0f,
-            2000
-        );
+        Grass::GenerateFromHeightmap(heightmap, terrainScale, 40.0f, 0.85f, 5000);
+
+
+
     }else{
         Grass::Clear();
     }
@@ -385,6 +376,7 @@ void InitLevel(LevelData& level, Camera& camera) {
         }
 
         GenerateFloorTiles(floorHeight);
+
         UpdateCeilingMaskTextureFromCPU();  // uploads ceilingMask to GPU once
         GenerateWallTiles(wallHeight); //model is 400 tall with origin at it's center, so wallHeight is floorHeight + model height/2. 270
         GenerateSecrets(wallHeight);
@@ -406,6 +398,8 @@ void InitLevel(LevelData& level, Camera& camera) {
         GenerateBoxesFromImage(floorHeight);
 
         GenerateHermitFromImage(floorHeight);
+
+
         if (level.name == "Ship"){
             GenerateShipLevel();
 
@@ -419,6 +413,13 @@ void InitLevel(LevelData& level, Camera& camera) {
 
         //XZ dynamic lightmap + shader lighting with occlusion
         InitDungeonLights();
+        
+        //init lights first then floor instance. 
+        InitFloorInstancing();
+        R.SetFloorInstancedLightingShaderValues(gGrayFloorInstancing);
+        R.SetFloorInstancedLightingShaderValues(gWoodFloorInstancing);
+
+
         
         miniMap.Initialize(4);
         miniMap.SetDrawSize(288.0f);
@@ -444,11 +445,11 @@ void InitLevel(LevelData& level, Camera& camera) {
     player.currentWeaponIndex = 0;
 
     StartFadeInFromBlack();
-    levelLoaded = true;
+ 
 
-    InitFloorInstancing();
-    R.SetFloorInstancedLightingShaderValues(gGrayFloorInstancing);
-    R.SetFloorInstancedLightingShaderValues(gWoodFloorInstancing);
+
+
+    levelLoaded = true;
 
 
     
@@ -1402,7 +1403,7 @@ void UpdateOverlayInfo(DebugOverlayInfo& overlayInfo){
     overlayInfo.useVsync = GameSettings::useVsync;
     overlayInfo.showCeiling = drawCeiling;
     overlayInfo.fps = GetFPS();
-
+    
     overlayInfo.levelName = levels[gCurrentLevelIndex].name.c_str();
     overlayInfo.levelIndex = gCurrentLevelIndex;
     overlayInfo.drawDistance = GameSettings::maxDrawDist;
@@ -1410,6 +1411,9 @@ void UpdateOverlayInfo(DebugOverlayInfo& overlayInfo){
     overlayInfo.visibleFloorTiles = GameSettings::gVisibleFloorTileCount;
     overlayInfo.totalFoliage = VegetationInstanced::GetTotalInstanceCount();
     overlayInfo.visibleFoliage = VegetationInstanced::GetVisibleInstanceCount();
+    overlayInfo.totalTerrainChunks = terrainStats.totalChunks;
+    overlayInfo.visibleTerrainChunks = terrainStats.visibleChunks;
+
     overlayInfo.totalFloorTiles = GameSettings::gTotalFloorTileCount;
     overlayInfo.staticLights = dungeonLights.size();
     overlayInfo.dynamicLights = frameLights.size();

@@ -128,13 +128,28 @@ void ConvertImageToWalkableGrid(const Image& dungeonMap) {
 
 
 
-Vector2 WorldToImageCoords(Vector3 worldPos) {
+Vector2 WorldToImageCoords(Vector3 worldPos)
+{
+    if (!isDungeon) // or currentLevel.isDungeon, level.isDungeon, etc.
+    {
+        return { -1.0f, -1.0f };
+    }
+
+    if (dungeonWidth <= 0 || dungeonHeight <= 0)
+    {
+        return { -1.0f, -1.0f };
+    }
+
     int x = (int)(worldPos.x / tileSize);
     int y = (int)(worldPos.z / tileSize);
 
-    // Flip Y and X to match how image pixels map to world
     x = dungeonWidth - 1 - x;
     y = dungeonHeight - 1 - y;
+
+    if (x < 0 || x >= dungeonWidth || y < 0 || y >= dungeonHeight)
+    {
+        return { -1.0f, -1.0f };
+    }
 
     return { (float)x, (float)y };
 }

@@ -35,6 +35,9 @@ struct DebugOverlayInfo {
     int visibleFoliage = 0;
     int totalFoliage = 0;
 
+    int totalTerrainChunks;
+    int visibleTerrainChunks;
+
     // World / sky
     float skyTransition = 0.0f; // 0.0 = day, 1.0 = night
 

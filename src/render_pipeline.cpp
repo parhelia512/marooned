@@ -174,7 +174,8 @@ void RenderFrame(Camera3D& camera, Player& player, float dt) {
 
             rlEnableDepthTest();
             rlDisableDepthMask();         // don’t write depth for transparent water
-            DrawModel(R.GetModel("waterModel"), {0,0,0}, 1.0f, WHITE); // shader colors the water
+            DrawModel(R.GetModel("waterModel"), {0,0,0}, 1.0f, WHITE); // shader colors the water, different water plane than ship level
+  
             rlEnableDepthMask();
         
             DrawBoat(player_boat);

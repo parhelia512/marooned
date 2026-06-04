@@ -540,7 +540,7 @@ void GatherTransparentDrawRequests(Camera& camera, float deltaTime) {
 
     if (!isDungeon && !CurrentLevelIs("Ship"))
     {
-        Grass::Gather(camera);
+        //Grass::Gather(camera);
     }
 
     

@@ -8,6 +8,7 @@
 #include "utilities.h"
 #include "shaderSetup.h"
 #include "viewCone.h"
+#include "grass.h"
 
 #include <algorithm>
 
@@ -15,6 +16,8 @@
 // Each batch = one model drawn with DrawMeshInstanced().
 static VegetationInstanceBatch gPalmTreeBatch;
 static VegetationInstanceBatch gBushBatch;
+
+static VegetationInstanceBatch gGrassBatches[4];
 
 // ------------------------------------------------------------
 // Helpers
@@ -113,6 +116,10 @@ namespace VegetationInstanced
     {
         gPalmTreeBatch.Clear();
         gBushBatch.Clear();
+        for (int i = 0; i < 4; i++)
+        {
+            gGrassBatches[i].Clear();
+        }
     }
 
     void Generate()
@@ -121,6 +128,21 @@ namespace VegetationInstanced
 
         gPalmTreeBatch.modelName = "palmTreeInstanced";
         gBushBatch.modelName = "bushInstanced";
+
+        const char* grassModelNames[4] =
+        {
+            "grassCardInstanced",
+            "grassCardInstanced2",
+            "grassCardInstanced3",
+            "grassCardInstanced4"
+        };
+
+        for (int i = 0; i < 4; i++)
+        {
+            gGrassBatches[i].modelName = grassModelNames[i];
+        }
+
+        
 
         generateVegetation();
 
@@ -134,6 +156,21 @@ namespace VegetationInstanced
             pos.z += tree.zOffset;
 
             PushInstance(gPalmTreeBatch, pos, tree.rotationY, finalScale);
+        }
+
+        for (const GrassInstanceSource& grass : Grass::gGrassInstanceSources)
+        {
+            int index = grass.textureIndex;
+
+            if (index < 0) index = 0;
+            if (index > 3) index = 3;
+
+            PushInstance(
+                gGrassBatches[index],
+                grass.position,
+                grass.yawDeg,
+                grass.scale
+            );
         }
 
         //No 3d bushes for now. 
@@ -155,24 +192,57 @@ namespace VegetationInstanced
             SetShaderValues(camera);
             DrawBatch(gPalmTreeBatch, camera);
             //DrawBatch(gBushBatch, camera);
+
+            for (int i = 0; i < 4; i++)
+            {
+                DrawBatch(gGrassBatches[i], camera);
+            }
         }
 
 
     }
 
+
     int GetTotalInstanceCount()
     {
-        return
+        int total =
             (int)gPalmTreeBatch.transforms.size() +
             (int)gBushBatch.transforms.size();
+
+        for (int i = 0; i < 4; i++)
+        {
+            total += (int)gGrassBatches[i].transforms.size();
+        }
+
+        return total;
     }
 
     int GetVisibleInstanceCount()
     {
-        return
+        int total =
             (int)gPalmTreeBatch.visibleTransforms.size() +
             (int)gBushBatch.visibleTransforms.size();
+
+        for (int i = 0; i < 4; i++)
+        {
+            total += (int)gGrassBatches[i].visibleTransforms.size();
+        }
+
+        return total;
     }
+    // int GetTotalInstanceCount()
+    // {
+    //     return
+    //         (int)gPalmTreeBatch.transforms.size() +
+    //         (int)gBushBatch.transforms.size();
+    // }
+
+    // int GetVisibleInstanceCount()
+    // {
+    //     return
+    //         (int)gPalmTreeBatch.visibleTransforms.size() +
+    //         (int)gBushBatch.visibleTransforms.size();
+    // }
 
 
 }
@@ -231,7 +301,12 @@ namespace VegetationInstanced
         locModelNightDarkness = GetShaderLocation(gShader, "u_ModelNightDarkness");
 
         ApplyInstancedShaderToModel(R.GetModel("palmTreeInstanced"), gShader);
-        ApplyInstancedShaderToModel(R.GetModel("bushInstanced"), gShader);
+        //ApplyInstancedShaderToModel(R.GetModel("bushInstanced"), gShader);
+
+        ApplyInstancedShaderToModel(R.GetModel("grassCardInstanced"), gShader);
+        ApplyInstancedShaderToModel(R.GetModel("grassCardInstanced2"), gShader);
+        ApplyInstancedShaderToModel(R.GetModel("grassCardInstanced3"), gShader);
+        ApplyInstancedShaderToModel(R.GetModel("grassCardInstanced4"), gShader);
 
        
     }

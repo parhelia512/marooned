@@ -2,6 +2,13 @@
 #include "raylib.h"
 #include <vector>
 
+struct TerrainChunkStats
+{
+    int totalChunks = 0;
+    int visibleChunks = 0;
+    int candidatesBeforeCap = 0;
+};
+
 struct TerrainChunk {
     Model      model;     // GPU model for this chunk
     BoundingBox aabb;     // world-space bounds (computed from mesh)
@@ -25,6 +32,7 @@ struct TerrainGrid {
 };
 
 extern TerrainGrid terrain;
+extern TerrainChunkStats terrainStats;
 
 // Build from an already-loaded grayscale heightmap image (one byte per pixel).
 // - terrainScale: your {16000, 200, 16000}
@@ -34,7 +42,14 @@ TerrainGrid BuildTerrainGridFromHeightmap(const Image& heightmapGray, Vector3 te
 // Draw with a simple distance ring (fast + good enough to start).
 // maxDrawDist is horizontal (XZ) distance in world units.
 void DrawTerrainGrid(const TerrainGrid& T, const Camera3D& cam, float maxDrawDist);
-void BuildTerrainChunkDrawList(const TerrainGrid& T,const Camera3D& cam,float maxDrawDist,int maxChunksToDraw,bool disableCulling, std::vector<ChunkDrawInfo>& outList);
+void BuildTerrainChunkDrawList(
+    const TerrainGrid& T,
+    const Camera3D& cam,
+    float maxDrawDist,
+    int maxChunksToDraw,
+    bool disableCulling,
+    std::vector<ChunkDrawInfo>& outList,
+    TerrainChunkStats* stats = nullptr);
 
 // Free all GPU resources owned by the grid.
 void UnloadTerrainGrid(TerrainGrid& T);

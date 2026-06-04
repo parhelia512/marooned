@@ -288,7 +288,7 @@ void ResourceManager::LoadAllResources() {
     R.LoadTexture("grassCard3",          "assets/textures/grassCard3.png");
     R.LoadTexture("grassCard4",          "assets/textures/grassCard4.png");
 
-    
+
     R.LoadTexture("swampGrass",       "assets/textures/swampGrass.png");
     R.LoadTexture("swampMud",         "assets/textures/swampMud.png");
 
@@ -347,6 +347,11 @@ void ResourceManager::LoadAllResources() {
     R.LoadModel("cannon",                 "assets/Models/cannon.glb");
     R.LoadModel("cannonBall",             "assets/Models/cannonBall.glb");
     R.LoadModel("cannonBalls",            "assets/Models/cannonBalls.glb");
+
+    R.LoadModel("grassCardInstanced",        "assets/Models/grassCard1.glb");
+    R.LoadModel("grassCardInstanced2",        "assets/Models/grassCard2.glb");
+    R.LoadModel("grassCardInstanced3",        "assets/Models/grassCard3.glb");
+    R.LoadModel("grassCardInstanced4",        "assets/Models/grassCard4.glb");
 
     //generated models
 
