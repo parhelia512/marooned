@@ -239,7 +239,7 @@ void BuildTerrainChunkDrawList(
             if (!IsInViewCone(vp, c.center))
                 continue;
 
-            if (c.aabb.max.y < waterHeightY){
+            if (c.aabb.max.y < waterHeightY){ //cull underwater chunks
                 continue;
             }
         }

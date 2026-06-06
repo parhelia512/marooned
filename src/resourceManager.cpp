@@ -469,6 +469,13 @@ void ResourceManager::SetShaderValues(){
     // set shaders values
     Shader& bloomShader = R.GetShader("bloomShader");
     Shader& shadowShader = R.GetShader("shadowShader");
+    Shader& cutoutShader = R.GetShader("cutoutShader"); //leaf_cutout.fs isn't for leaves, it's for dungeon sprites. 
+
+    float cut = 0.1f;
+    int cutoutAlphaCutoffLoc = GetShaderLocation(cutoutShader, "alphaCutoff"); //Dungeon alpha cutoff amount. 0.1 for webs. 
+
+
+    SetShaderValue(cutoutShader, cutoutAlphaCutoffLoc, &cut, SHADER_UNIFORM_FLOAT);
 
     SetGhostShaderValues();
 

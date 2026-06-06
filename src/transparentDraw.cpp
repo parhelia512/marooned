@@ -15,6 +15,7 @@
 #include "utilities.h"
 #include "shaderSetup.h"
 #include "grass.h"
+#include "dungeon_props.h"
 
 
 std::vector<BillboardDrawRequest> billboardRequests;
@@ -538,6 +539,8 @@ void GatherTransparentDrawRequests(Camera& camera, float deltaTime) {
     GatherPortals(camera, portals);
     GatherSpawnPortals(camera);
 
+    GatherDungeonPropDrawRequests(camera.position, billboardRequests);
+
     if (!isDungeon && !CurrentLevelIs("Ship"))
     {
         //Grass::Gather(camera);
@@ -584,16 +587,13 @@ void DrawTransparentDrawRequests(Camera& camera) {
         }
         SetShaderValue(R.GetShader("portalShader"), ShaderSetup::gPortal.portalOpenLoc, &req.openAmount, SHADER_UNIFORM_FLOAT);
 
-        Vector3 forward = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
-
-        Vector3 testPos = Vector3Add(camera.position, Vector3Scale(forward, 500.0f));
-        testPos.y = camera.position.y;
                 
         switch (req.type) {
             case Billboard_FacingCamera: //use draw billboard for both decals, and enemies. 
             case Billboard_Decal:
                 SetPortalShaderColor(req.pallet.colorA, req.pallet.colorB);
-                if (req.isPortal) BeginShaderMode(R.GetShader("portalShader"));
+
+
                 rlDisableDepthMask(); //DepthMask off...We are going back to manual sorting but with alpha cut out as well. 
                 //This fixes explosion texture occlusion problem, and doesn't break anything else. I think.
                 DrawBillboardRec(
@@ -604,12 +604,12 @@ void DrawTransparentDrawRequests(Camera& camera) {
                     worldSize,
                     req.tint
                 );
-                EndShaderMode();
+
                 rlEnableDepthMask();
                 break;
-            case Billboard_FixedFlat: //special case for webs
+            case Billboard_FixedFlat: //webs and cross quads
 
-
+                rlDisableDepthMask();   
                 DrawFlatWeb(
                     (req.texture),
                     req.position,
@@ -618,14 +618,11 @@ void DrawTransparentDrawRequests(Camera& camera) {
                     req.rotationY,
                     req.tint
                 );
-
+                rlEnableDepthMask();
                 break;
                 
 
             case Billboard_Door:
-                
-                SetPortalShaderColor(req.pallet.colorA, req.pallet.colorB);
-                if (req.isPortal) BeginShaderMode(R.GetShader("portalShader")); 
 
                 float doorWidth  = req.size.x;    // what we pushed from GatherDoors
                 float doorHeight = 365.0f;

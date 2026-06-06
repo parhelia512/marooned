@@ -1550,7 +1550,7 @@ void GenerateSpiderWebs(float baseY)
                 rotationY = 0;
             } 
             else if (wallUp && wallDown) {
-                rotationY = 90.0f * DEG2RAD;
+                rotationY = 90.0f;
             } 
             else {
                 continue;  // not valid web position
@@ -2808,8 +2808,8 @@ void DrawFlatWeb(Texture2D texture, Vector3 position, float width, float height,
     Vector3 p4 = {-width/2,  height/2, 0};
 
     // Apply Y-axis rotation
-    //Matrix rot = MatrixRotateY(rotationY * DEG2RAD);
-    Matrix rot = MatrixRotateY(rotationY);
+    Matrix rot = MatrixRotateY(rotationY * DEG2RAD);
+    //Matrix rot = MatrixRotateY(rotationY);
     p1 = Vector3Transform(p1, rot);
     p2 = Vector3Transform(p2, rot);
     p3 = Vector3Transform(p3, rot);

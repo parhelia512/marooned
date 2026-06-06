@@ -29,7 +29,7 @@
 #include "vegetation_instanced.h"
 #include "debug_console.h"
 #include "grass.h"
-
+#include "dungeon_props.h"
 
 
 GameState currentGameState = GameState::Menu;
@@ -404,6 +404,10 @@ void InitLevel(LevelData& level, Camera& camera) {
             GenerateShipLevel();
 
         } 
+
+        //generate props.
+        // GenerateDungeonPropsForCurrentLevel();
+        GenerateDungeonPropsForCurrentLevel();
         //generate enemies.
         GenerateEnemiesFromImage(dungeonEnemyHeight);
         OpenSecrets();   // set wallRuns[idx] enabled = false, player doesn't collide with disabled wallruns. 
@@ -1556,6 +1560,7 @@ void ClearLevel() {
     gFloorInstanceSources.clear();
     gGrayFloorInstancing.transforms.clear();
     gWoodFloorInstancing.transforms.clear();
+    ClearDungeonProps();
 
 
     
