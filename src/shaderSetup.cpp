@@ -91,6 +91,8 @@ namespace ShaderSetup
         SetShaderValue(sh, ws.loc_FadeStart,     &ws.fadeStart, SHADER_UNIFORM_FLOAT);
         SetShaderValue(sh, ws.loc_FadeEnd,       &ws.fadeEnd,   SHADER_UNIFORM_FLOAT);
         SetShaderValue(sh, ws.loc_waterLevel,    &waterHeightY, SHADER_UNIFORM_FLOAT);
+
+        
     }
 
     void InitWaterShader(Shader& shader, WaterShader& out, Vector3 terrainScale)
@@ -130,7 +132,7 @@ namespace ShaderSetup
 
         float nightT = ShaderSetup::gSky.skyTransition;
 
-        float waterReflectStrength = Lerp(0.25f, 0.65f, nightT);
+        float waterReflectStrength = Lerp(0.15f, 0.65f, nightT);
         float waterNightDarkness   = nightT;
 
         Vector3 skyTop     = ShaderSetup::GetCurrentSkyTopFogColor();
@@ -141,6 +143,9 @@ namespace ShaderSetup
         SetShaderValue(sh, ws.loc_skyReflectStrength, &waterReflectStrength, SHADER_UNIFORM_FLOAT);
         SetShaderValue(sh, ws.loc_waterNightDark, &waterNightDarkness, SHADER_UNIFORM_FLOAT);
 
+        float patchSize = 14000.0f;
+
+        SetShaderValue(sh, ws.loc_PatchHalfSize, &patchSize, SHADER_UNIFORM_FLOAT);
         SetShaderValue(sh, ws.loc_WaterCenterXZ, &centerXZ,       SHADER_UNIFORM_VEC2);
         SetShaderValue(sh, ws.loc_cameraPos,     &camera.position, SHADER_UNIFORM_VEC3);
 

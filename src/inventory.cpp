@@ -89,10 +89,10 @@ void Inventory::DrawInventoryUIWithIcons(const std::map<std::string, Texture2D>&
         // Draw slot outline
         DrawRectangleRec(slotRect, (Color){20,20,20,200});
         DrawRectangleLinesEx(slotRect, 2, WHITE);
-
+        auto it = itemTextures.find(itemId);
         // If we have the item and a texture for it
-        if (HasItem(itemId) && itemTextures.count(itemId) > 0) {
-            const Texture2D& tex = itemTextures.at(itemId);
+        if (HasItem(itemId) && it != itemTextures.end()) {
+            const Texture2D& tex = it->second;
 
             DrawTexturePro(
                 tex,

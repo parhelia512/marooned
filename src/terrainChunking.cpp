@@ -225,21 +225,9 @@ void BuildTerrainChunkDrawList(
         1600.0f
     );
 
-    // Tweak this until the square edge disappears.
-    const float circularTerrainRadius = 10000.0f;
-    const Vector3 terrainCenter = { 0.0f, 0.0f, 0.0f };
-    const float circularTerrainRadiusSq = circularTerrainRadius * circularTerrainRadius;
-
     // 1) Collect candidates
     for (const TerrainChunk& c : T.chunks)
     {
-        // Circular world crop.
-        Vector3 toWorldCenter = Vector3Subtract(c.center, terrainCenter);
-        toWorldCenter.y = 0.0f;
-
-        if (Vector3LengthSqr(toWorldCenter) > circularTerrainRadiusSq)
-            continue;
-
         Vector3 toChunk = Vector3Subtract(c.center, cam.position);
         float distSq = Vector3LengthSqr(toChunk);
 
@@ -285,9 +273,10 @@ void BuildTerrainChunkDrawList(
 
 
 void DrawTerrainGrid(const TerrainGrid& T, const Camera3D& cam, float maxDrawDist) {
-    bool disableCulling = (currentGameState == GameState::Menu); //dont cull in debug mode. or menu
     rlEnableBackfaceCulling();
-    int maxChunksToDraw = disableCulling ? 500 : 250;
+    bool disableCulling = false;
+
+    int maxChunksToDraw = 300;
     static std::vector<ChunkDrawInfo> drawList;
 
     BuildTerrainChunkDrawList(T, cam, maxDrawDist, maxChunksToDraw, disableCulling, drawList, &terrainStats);

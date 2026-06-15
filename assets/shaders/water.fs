@@ -29,7 +29,7 @@ void main()
     float wave = sin(fragTexCoord.x * 30.0 + time * 0.5) * 0.15 +
                  cos(fragTexCoord.y * 30.0 + time * 0.3) * 0.15;
 
-    float brightness = 1.3 + wave;
+    float brightness = 1.3;//+ wave;
 
     // --- Depth-based color gradient ---
     float distanceToCam = length(fragPosition - cameraPos);
@@ -41,14 +41,9 @@ void main()
 
     vec3 waterColor;
 
-    if (u_isSwamp == 1)
-    {
-        waterColor = swampColor;
-    }
-    else
-    {
-        waterColor = mix(shallowColor, deepColor, depthFactor) * brightness;
-    }
+
+    waterColor = mix(shallowColor, deepColor, depthFactor) * brightness;
+    
 
     // --- Current sky color ---
     // You can replace 60.0 with a u_SeaLevel uniform later if you want.
@@ -70,7 +65,7 @@ void main()
 
     // --- Edge Fade: radial based on patch center ---
     float radialDist = length(fragPosition.xz - u_WaterCenterXZ);
-    float edgeFade = smoothstep(u_PatchHalfSize * 0.82, u_PatchHalfSize, radialDist);
+    float edgeFade = smoothstep(u_PatchHalfSize, u_PatchHalfSize, radialDist); // <<-------- mess with this. 0.82
 
     // --- Horizon Fade: distance from camera ---
     float horizonFade = smoothstep(u_FadeStart, u_FadeEnd, distanceToCam);
@@ -80,7 +75,10 @@ void main()
 
     // Since final alpha is forced opaque, fade color toward sky instead of black.
     // This usually blends better with horizon/sky.
-    vec3 finalRGB = mix(waterColor, skyColor, fade * 0.65);
+    //vec3 finalRGB = mix(waterColor, skyColor, fade * 0.65);
+
+    vec3 finalRGB = mix(waterColor, skyColor, fade);
+
 
     finalColor = vec4(finalRGB, 1.0);
 }

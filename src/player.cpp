@@ -48,7 +48,7 @@ void InitPlayer(Player& player, Vector3 startPosition) {
     playerInit = true;
 
     if (first){
-        first = false; // player first starting position uses first as well, it's set to false here
+         // player first starting position uses first as well, it's set to false here
         player.inventory.AddItem("HealthPotion");
     
     }

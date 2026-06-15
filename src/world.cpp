@@ -130,9 +130,14 @@ void EnterMenu() {
     CinematicDesc cd{};
     cd.snapOnStart   = true;
     cd.orbitSpeedDeg = 1.0f;      // very slow
-    cd.height        = 2000.0f;
+    cd.height        = 5000.0f;
     cd.lookSmooth    = 6.0f;
     cd.posSmooth     = 1.5f;
+    cd.height = 3000.0f;
+
+    cd.bobHeight = true;
+    cd.bobAmount = 0.0f;
+    cd.bobSpeed = 0.01f;
 
     if (isDungeon) {
         // 32 tiles * 200 = 6400. Center is (3200,0,3200)
@@ -143,9 +148,10 @@ void EnterMenu() {
 
     } else {
         cd.focus  = { 0.0f, 0.0f, 0.0f };            // set to your island center
-        cd.radius = 10000.0f;
-        cd.height = 3500.0f;
+        cd.radius = 12000.0f;
+        cd.height = 3000.0f;
         cd.startAngleDeg = 180.0f;                   // starts on -Z side
+        cd.bobAmount = 2500.0f;
 
     }
 
@@ -167,7 +173,7 @@ void InitMenuLevel(LevelData& level){
     VegetationInstanced::InitShader();
     //generateVegetation(); //vegetation checks entrance positions. generate after assinging entrances.
 
-    InitBoat(player_boat,Vector3{0.0, -75, 0.0});
+    InitBoat(player_boat,Vector3{0.0, -25, 0.0});
     R.SetShaderValues();
 
     //R.SetBloomShaderValues();
@@ -176,15 +182,17 @@ void InitMenuLevel(LevelData& level){
 
     CinematicDesc cd;
     cd.focus = { 0, 0, 0 };        // whatever looks good on your island
-    cd.radius = 10000.0f;
-    cd.height = 3500.0f;
+    cd.radius = 12000.0f;
+    cd.height = 3000.0f;
     cd.orbitSpeedDeg = 2.0f;       // slow
     cd.posSmooth = 1.5f;
     cd.lookSmooth = 6.0f;
+
+    cd.bobHeight = true;
+    cd.bobAmount = 2500.0f;
+    cd.bobSpeed = 0.01f;
     
     CameraSystem::Get().StartCinematic(cd);
-
-    //ApplyLevelDefaultSky();
 
     if (!isDungeon) ShaderSetup::StartSkyCycle(
         30.0f, // day hold
@@ -232,6 +240,46 @@ void UpdateShadersPerFrame(float deltaTime,float ElapsedTime, Camera& camera){
     ShaderSetup::UpdateSkyShaderPerFrame(ShaderSetup::gSky, ElapsedTime);
 }
 
+void StartCutScene(){
+    //Middle island intro
+    CutsceneDesc intro;
+    if (CurrentLevelIs("MiddleIsland") && first){ //only show cutscene the first time.
+        //hard coded positions
+        intro.startPos = { -10845.8, 975.138, 2969.99 };
+        intro.endPos   = { 5475.0f, 300.0f, -5665.0f};
+        intro.target   = { 0.0f, 200.0f, 0.0f };
+
+        intro.duration = 25.0f;
+        intro.arcHeight = 2000.0f;
+        intro.pathType = CutscenePathType::Arc;
+        intro.returnToPlayerOnFinish = true;
+
+        CameraSystem::Get().StartCutscene(intro);
+
+    }else if (CurrentLevelIs("Dungeon1")){
+
+        //center
+        //Vector3(3460.73, 660.262, 3206.36)
+
+        intro.startPos = { (float)dungeonWidth, 975.138, -(float)dungeonWidth }; //+x -z = opposite corner
+        intro.endPos   = player.position;
+        intro.target   = { 3460.73, 660.262, 3206.36};
+
+        intro.duration = 15.0f;
+        intro.arcHeight = 2500.0f;
+        intro.pathType = CutscenePathType::Arc;
+        intro.returnToPlayerOnFinish = true;
+
+        CameraSystem::Get().StartCutscene(intro);
+
+    }else{
+        CameraSystem::Get().SetMode(CamMode::Player);
+    }
+
+
+
+}
+
 
 
 void InitLevel(LevelData& level, Camera& camera) {
@@ -247,7 +295,7 @@ void InitLevel(LevelData& level, Camera& camera) {
 
     DebugConsole::Init();
     CameraSystem::Get().StopCinematic();
-    CameraSystem::Get().SetMode(CamMode::Player);
+    CameraSystem::Get().SetMode(CamMode::Cinematic);
     //CameraSystem::Get().SnapAllToPlayer(); //put freecam at player pos
     
     //camera.position = player.position; //start as player, not freecam.
@@ -416,13 +464,7 @@ void InitLevel(LevelData& level, Camera& camera) {
         InitDungeonLights();
         
         //init lights first then floor instance. 
-        //InitFloorInstancing();
         InitDungeonInstancing();
-        // R.SetFloorInstancedLightingShaderValues(gGrayFloorInstancing);
-        // R.SetFloorInstancedLightingShaderValues(gWoodFloorInstancing);
-
-
-        
         miniMap.Initialize(4);
         miniMap.SetDrawSize(288.0f);
     }
@@ -447,12 +489,12 @@ void InitLevel(LevelData& level, Camera& camera) {
     player.currentWeaponIndex = 0;
 
     StartFadeInFromBlack();
- 
-
-
-
     levelLoaded = true;
 
+    StartCutScene();
+
+    first = false;
+    
 
     
 }
@@ -632,21 +674,16 @@ bool CurrentLevelIs(const std::string& name)
 
 void DrawWaterPlane()
 {
-    if (!CurrentLevelIs("Ship")){
-        return;
-    }
-
-
     float dungeonWorldWidth  = dungeonWidth  * tileSize;
     float dungeonWorldHeight = dungeonHeight * tileSize;
 
     Vector3 dungeonCenter = {
         dungeonWorldWidth  * 0.5f,
-        -200.0f,
+        -8.0f,
         dungeonWorldHeight * 0.5f
     };
 
-    DrawModel(R.GetModel("waterModel"), dungeonCenter, 1.0f, WHITE);
+    DrawModel(R.GetModel("waterModel"), Vector3{0}, 1.0f, WHITE);
 }
 
 
@@ -712,7 +749,7 @@ void UpdateSlashEffects(float deltaTime){
 void HandleWaves(Camera& camera){
     //water
     // update position (keep your existing waterModel)
-    Vector3 waterCenter = { camera.position.x, waterHeightY, camera.position.z };
+    Vector3 waterCenter = {0.0f, waterHeightY, 0.0f};
     Matrix xform = MatrixTranslate(waterCenter.x, waterCenter.y + sinf(GetTime()*0.9f)*0.9f, waterCenter.z);
     R.GetModel("waterModel").transform = xform;
 
@@ -1551,7 +1588,11 @@ void ClearLevel() {
     removeAllCharacters();
     ClearDungeon();
     RemoveAllVegetation();
+    ClearDungeonInstancingSources();
+    ClearDungeonProps();
+    EventLockAllDoors(false);
     VegetationInstanced::Clear();
+    SpawnManager::Clear();
     activeBullets.clear();
     billboardRequests.clear();
     bulletLights.clear();
@@ -1560,10 +1601,9 @@ void ClearLevel() {
     tentacles.clear();
     cannons.clear();
     g_powerUps.clear();
-    SpawnManager::Clear();
-    EventLockAllDoors(false);
-    ClearDungeonInstancingSources();
-    ClearDungeonProps();
+    player_boat = {};
+
+
 
 
     

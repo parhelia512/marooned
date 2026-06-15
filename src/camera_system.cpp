@@ -9,6 +9,49 @@
 
 DeathCamState deathCam;
 
+
+static float EaseInOutSmooth(float t)
+{
+    t = Clamp01(t);
+    return t * t * (3.0f - 2.0f * t);
+}
+
+Vector3 CameraSystem::GetOrbitCinematicPosition(float angleDeg) const
+{
+    Vector3 focus = cine.useDynamicFocus ? cine.dynamicFocus : cine.focus;
+
+    float height = cine.height;
+
+    if (cine.bobHeight) {
+        float wave = sinf(cineTime * cine.bobSpeed * 2.0f * PI + cine.bobPhase);
+        height += wave * cine.bobAmount;
+    }
+
+    float ang = DEG2RAD * angleDeg;
+
+    return {
+        focus.x + sinf(ang) * cine.radius,
+        focus.y + height,
+        focus.z + cosf(ang) * cine.radius
+    };
+}
+
+Vector3 CameraSystem::GetCutscenePathPosition(float t) const
+{
+    t = Clamp01(t);
+
+    float e = EaseInOutSmooth(t);
+
+    Vector3 pos = LerpVec3(cutscene.startPos, cutscene.endPos, e);
+
+    if (cutscene.pathType == CutscenePathType::Arc) {
+        float arc = sinf(t * PI) * cutscene.arcHeight;
+        pos.y += arc;
+    }
+
+    return pos;
+}
+
 CameraSystem& CameraSystem::Get() {
     static CameraSystem instance;
     return instance;
@@ -113,6 +156,68 @@ void CameraSystem::ApplyShake(float dt) {
 inline float SmoothStepExp(float current, float target, float speed, float dt) {
     float a = 1.0f - expf(-speed * dt);
     return current + (target - current) * a;
+}
+
+void CameraSystem::StartCutscene(const CutsceneDesc& desc)
+{
+    cutscene = desc;
+
+    // Important: cutscene owns cinematic mode now
+    cineKind = CinematicKind::Cutscene;
+    cutsceneActive = true;
+    cutsceneT = 0.0f;
+
+    // Optional but cleaner: disable orbit state
+    cineActive = false;
+
+    mode = CamMode::Cinematic;
+    drawCeiling = false; //don't draw ceiling when in cinematic camera
+
+    cinematicRig.fov = (playerRig.fov > 0.f) ? playerRig.fov : GameSettings::fovY;
+    cinematicRig.cam.fovy = cinematicRig.fov;
+    cinematicRig.cam.up = { 0, 1, 0 };
+    cinematicRig.cam.projection = CAMERA_PERSPECTIVE;
+
+    if (cutscene.snapOnStart) {
+        cinematicRig.cam.position = cutscene.startPos;
+        cinematicRig.cam.target = cutscene.target;
+    }
+}
+
+void CameraSystem::UpdateCutsceneCam(float dt)
+{
+    if (!cutsceneActive) return;
+
+    cutsceneT += dt;
+
+    float t = 1.0f;
+
+    if (cutscene.duration > 0.0f) {
+        t = cutsceneT / cutscene.duration;
+    }
+
+    t = Clamp01(t);
+
+    Vector3 pos = GetCutscenePathPosition(t);
+
+    cinematicRig.cam.position = pos;
+
+    if (cutscene.lockTarget) {
+        cinematicRig.cam.target = cutscene.target;
+    }
+
+    cinematicRig.cam.up = { 0, 1, 0 };
+    cinematicRig.cam.fovy = cinematicRig.fov;
+    cinematicRig.cam.projection = CAMERA_PERSPECTIVE;
+
+    if (t >= 1.0f) {
+        cutsceneActive = false;
+        drawCeiling = levels[gCurrentLevelIndex].hasCeiling; //turn ceilings back on
+        if (cutscene.returnToPlayerOnFinish) {
+            SnapAllToPlayer();
+            SetMode(CamMode::Player);
+        }
+    }
 }
 
 
@@ -318,30 +423,28 @@ void CameraSystem::UpdateDeathCam(float dt)
 
 void CameraSystem::StartCinematic(const CinematicDesc& desc) {
     cine = desc;
+
+    // Important: menu/orbit cinematic owns this now
+    cineKind = CinematicKind::Orbit;
     cineActive = true;
+
+    // Important: kill any previous cutscene state
+    cutsceneActive = false;
+    cutsceneT = 0.0f;
 
     // Enter cinematic mode first so Active() doesn't matter anymore.
     mode = CamMode::Cinematic;
 
     // Pick starting orbit angle deterministically
+    cineTime = 0.0f;
     cineOrbitAngleDeg = cine.startAngleDeg;
 
     Vector3 focus = cine.useDynamicFocus ? cine.dynamicFocus : cine.focus;
-    float ang = DEG2RAD * cineOrbitAngleDeg;
-
-    Vector3 startPos = {
-        focus.x + sinf(ang) * cine.radius,
-        focus.y + cine.height,
-        focus.z + cosf(ang) * cine.radius
-    };
+    Vector3 startPos = GetOrbitCinematicPosition(cineOrbitAngleDeg);
 
     if (cine.snapOnStart) {
         cinematicRig.cam.position = startPos;
-        cinematicRig.cam.target   = focus;
-    } else {
-        // If you want “ease-in” from whatever the cinematic cam currently was:
-        // leave position/target as-is and smoothing will pull it toward the orbit path.
-        // (But default snapOnStart=true is best for menus.)
+        cinematicRig.cam.target = focus;
     }
 
     // FOV: use current active fov if you want, or keep a fixed menu fov
@@ -350,6 +453,7 @@ void CameraSystem::StartCinematic(const CinematicDesc& desc) {
     cinematicRig.cam.fovy = cinematicRig.fov;
     cinematicRig.cam.up   = {0,1,0};
     cinematicRig.cam.projection = CAMERA_PERSPECTIVE;
+    
 }
 
 
@@ -382,6 +486,8 @@ void CameraSystem::Update(float dt) {
         case CamMode::Cinematic:
             UpdateCinematicCam(dt);
             break;
+
+        
     }
         
     
@@ -395,8 +501,11 @@ void CameraSystem::Update(float dt) {
 
 }
 
-void CameraSystem::UpdateCinematicCam(float dt) {
+void CameraSystem::UpdateOrbitCinematicCam(float dt)
+{
     if (!cineActive) return;
+
+    cineTime += dt;
 
     cineOrbitAngleDeg += cine.orbitSpeedDeg * dt;
     if (cineOrbitAngleDeg >= 360.0f) cineOrbitAngleDeg -= 360.0f;
@@ -406,26 +515,46 @@ void CameraSystem::UpdateCinematicCam(float dt) {
 
     Vector3 focus = cine.useDynamicFocus ? cine.dynamicFocus : cine.focus;
 
+    float height = cine.height;
+
+    if (cine.bobHeight) {
+        float wave = sinf(cineTime * cine.bobSpeed * 2.0f * PI + cine.bobPhase);
+        height += wave * cine.bobAmount;
+    }
+
     Vector3 desiredPos = {
         focus.x + sinf(ang) * cine.radius,
-        focus.y + cine.height,
+        focus.y + height,
         focus.z + cosf(ang) * cine.radius
     };
 
-    if (cine.posSmooth <= 0.0f) cinematicRig.cam.position = desiredPos;
-    else cinematicRig.cam.position = SmoothExpV3(cinematicRig.cam.position, desiredPos, cine.posSmooth, dt);
+    if (cine.posSmooth <= 0.0f)
+        cinematicRig.cam.position = desiredPos;
+    else
+        cinematicRig.cam.position = SmoothExpV3(cinematicRig.cam.position, desiredPos, cine.posSmooth, dt);
 
-    if (cine.lookSmooth <= 0.0f) cinematicRig.cam.target = focus;
-    else cinematicRig.cam.target = SmoothExpV3(cinematicRig.cam.target, focus, cine.lookSmooth, dt);
+    if (cine.lookSmooth <= 0.0f)
+        cinematicRig.cam.target = focus;
+    else
+        cinematicRig.cam.target = SmoothExpV3(cinematicRig.cam.target, focus, cine.lookSmooth, dt);
 
     cinematicRig.cam.up   = {0,1,0};
     cinematicRig.cam.fovy = cinematicRig.fov;
+}
 
-    // if (debugInfo){
-    //     SetFarClip(isDungeon ? 50000.0f : 50000.0f);
-    // }else{
-    //     SetFarClip(isDungeon ? 16000.0f : 50000.0f);
-    // }
-    
+void CameraSystem::UpdateCinematicCam(float dt) {
+    //if (!cineActive) return;
+
+    if (cineKind == CinematicKind::Cutscene) {
+        UpdateCutsceneCam(dt);
+        return;
+    }
+
+    if (cineKind == CinematicKind::Orbit) {
+        UpdateOrbitCinematicCam(dt);
+        return;
+    }
+
+
 }
 

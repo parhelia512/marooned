@@ -15,6 +15,7 @@ struct Boat {
     bool beached;
     bool playerOnBoard;
     bool showMessage;
+    bool active;
 };
 
 extern Boat player_boat;

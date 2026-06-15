@@ -8,29 +8,35 @@
 Boat player_boat{};
 
 void InitBoat(Boat& boat, Vector3 startPos) {
+    boat = {}; // clears old state
+
     boat.position = startPos;
-    boat.velocity = { 0.0f, 0.0f, 0.0f };
-    boat.rotationY = 0.0f;
-    boat.speed = 0.0f;
+    boat.previousBoatPosition = startPos;
     boat.maxSpeed = 600.0f;
     boat.acceleration = 300.0f;
-    boat.turnSpeed = 20.0f; // degrees per second
-    boat.playerOnBoard = false;
-    boat.beached = false;
-    boat.previousBoatPosition = startPos;
+    boat.turnSpeed = 20.0f;
     boat.showMessage = true;
+    boat.active = false;
 
+    if (isDungeon) {
+        return;
+    }
 
     for (const auto& p : levels[levelIndex].overworldProps) {
-        if (p.type == PropType::Boat){
-            player_boat.position.x = p.position.x;
-            player_boat.position.z = p.position.z;
+        if (p.type == PropType::Boat) {
+            boat.position.x = p.position.x;
+            boat.position.y = p.position.y;
+            boat.position.z = p.position.z;
+            boat.previousBoatPosition = boat.position;
+            boat.active = true;
+            break;
         }
     }
 }
 
 void UpdateBoat(Boat& boat, float deltaTime) {
     if (!boat.playerOnBoard) return;
+    if (!boat.active) return;
 
 
     // Turning
@@ -102,6 +108,7 @@ static Color GetTimeOfDayGrayTint()
 
 
 void DrawBoat(const Boat& boat) {
+    if (!boat.active) return;
     float bob = sinf(GetTime() * 2.0f) * 2.0f;
     Vector3 drawPos = boat.position;
     if (!boat.beached) drawPos.y += bob;

@@ -5,6 +5,40 @@
 
 enum class CamMode { Player, Free, Cinematic, Death};
 
+enum class CinematicKind {
+    Orbit,
+    Cutscene
+};
+
+enum class CutscenePathType {
+    Line,
+    Arc
+};
+
+struct CutsceneDesc {
+    Vector3 startPos{0,0,0};
+    Vector3 endPos{0,0,0};
+
+    // Usually dungeon entrance, island center, boss, ship, etc.
+    Vector3 target{0,0,0};
+
+    float duration = 4.0f;
+
+    // If Arc, this is how high the camera rises in the middle.
+    float arcHeight = 1500.0f;
+
+    CutscenePathType pathType = CutscenePathType::Arc;
+
+    // If true, camera.target stays locked to target.
+    // Later this could become startTarget/endTarget if you want target movement.
+    bool lockTarget = true;
+
+    bool snapOnStart = true;
+
+    // Auto return to player camera when finished.
+    bool returnToPlayerOnFinish = true;
+};
+
 struct DeathCamState {
     Vector3 startPos;
     Vector3 startTarget;
@@ -45,8 +79,12 @@ struct CameraRig {
 
 struct CinematicDesc {
     Vector3 focus{0,0,0};        // what we look at / orbit around
-    float radius = 5000.0f;
-    float height = 2000.0f;
+    // float radius = 5000.0f;
+    // float height = 2000.0f;
+
+    float radius = 10000.0f;
+    float height = 4000.0f;
+
     float orbitSpeedDeg = 3.0f;  // deg/sec
 
     float lookSmooth = 8.0f;
@@ -59,6 +97,11 @@ struct CinematicDesc {
     // Optional: later if you want moving focus
     bool useDynamicFocus = false;
     Vector3 dynamicFocus{0,0,0};
+
+    bool bobHeight = false;
+    float bobAmount = 2000.0f;     // how far up/down
+    float bobSpeed = 10.0f;       // cycles-ish per second feel
+    float bobPhase = 0.0f;        // optional offset
 };
 
 
@@ -76,9 +119,15 @@ public:
 
     CamMode GetMode() const;
 
+
+    Vector3 GetCutscenePathPosition(float t) const;
+    Vector3 GetOrbitCinematicPosition(float angleDeg) const;
+
     void SetFOV(float fov);
     void SetFarClip(float farClip);
     void Shake(float magnitude, float duration);
+
+    void StartCutscene(const CutsceneDesc& desc);
 
     // Cinematic control
     void StartCinematic(const CinematicDesc& desc);  // call when entering menu
@@ -99,11 +148,14 @@ private:
     CameraSystem() = default;
 
     PlayerView pv{};
+    void UpdateCutsceneCam(float dt);
     void UpdatePlayerCam(float dt);
     void UpdateFreeCam(float dt);
     void UpdateCinematicCam(float dt);
+    void UpdateOrbitCinematicCam(float dt);
     void UpdateDeathCam(float dt);
     void ApplyShake(float dt);
+
 
     CamMode mode = CamMode::Player;
 
@@ -117,4 +169,15 @@ private:
     float cineOrbitAngleDeg = 0.0f;
     float shakeTime = 0.0f;
     float shakeMag = 0.0f;
+
+    float cineTime = 0.0f;
+
+    CinematicKind cineKind = CinematicKind::Orbit;
+
+    CutsceneDesc cutscene{};
+    float cutsceneT = 0.0f;
+    bool cutsceneActive = false;
+
+
+
 };

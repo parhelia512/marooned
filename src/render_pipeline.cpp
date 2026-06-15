@@ -72,11 +72,10 @@ void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
         if (!isDungeon){
 
             DrawTerrainGrid(terrain, camera, GameSettings::maxDrawDist); //draw the chunks
-
             DrawBoat(player_boat);
             HandleWaves(camera); //update water plane bob. 
             VegetationInstanced::Draw(camera);
-
+            DrawWaterPlane();
             DrawOverworldProps();
 
 
@@ -85,7 +84,7 @@ void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
         }
         rlDisableDepthMask();
         //rlDisableDepthTest();
-        DrawWaterPlane();
+
         rlEnableDepthMask();
         rlEnableDepthTest();
         DrawDungeonGeometry(camera, GameSettings::maxDrawDist);

@@ -44,7 +44,7 @@ std::vector<uint8_t> shipWallMask;
 
 std::vector<LightSample> frameLights;
 std::vector<LauncherTrap> launchers;
-std::vector<FloorTile> floorTiles;
+//std::vector<FloorTile> floorTiles; //no floor tile struct anymore, we push straight to intancing. 
 std::vector<FloorTile> lavaTiles;
 std::vector<WallInstance> wallInstances;
 std::vector<CeilingTile> ceilingTiles;
@@ -545,7 +545,7 @@ void UpdateCeilingMaskTextureFromCPU()
 
 void GenerateFloorTiles(float baseY)
 {
-    floorTiles.clear();
+    //floorTiles.clear();
     lavaTiles.clear();
     //gFloorInstanceSources.clear();
 
@@ -595,7 +595,7 @@ void GenerateFloorTiles(float baseY)
             // floorTiles.push_back(tile);
             // AddFloorInstanceSource(tile);
 
-            AddFloorInstanceSource(pos, FloorType::Normal);
+            AddFloorInstanceSource(pos, FloorType::Normal); //push straight to instancing system, no struct needed. 
         }
 
     }
@@ -772,7 +772,7 @@ void GenerateWallTiles(float baseY) {
                     wall.rotationY = 90.0f;
                     wall.tint      = WHITE;
                     wallInstances.push_back(wall);
-                    AddWallInstanceSource(wall);
+                    AddWallInstanceSource(wall); //instance 
 
                     a.y -= 190.0f;
                     b.y -= 190.0f;
@@ -1288,7 +1288,8 @@ void AddShipSkirtEdge(int x, int y, int dir, float baseY)
 
     skirt.position = mid;
     skirt.type = WallType::Wood;
-    wallInstances.push_back(skirt);
+    //wallInstances.push_back(skirt);
+    AddWallInstanceSource(skirt);
 
     //No collision with skirts. 
     // BoundingBox bb = MakeAABBFromSkirt(skirt, dir);
@@ -3118,7 +3119,7 @@ BoundingBox MakeDoorBoundingBox(Vector3 position, float rotationY, float halfWid
 
 void ClearDungeon() {
     wallRunColliders.clear();
-    floorTiles.clear();
+    //floorTiles.clear();
     wallInstances.clear();
     ceilingTiles.clear();
     pillars.clear();

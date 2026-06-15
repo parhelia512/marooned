@@ -361,7 +361,8 @@ void ResourceManager::LoadAllResources() {
 
     R.AddModelFromMesh("squareBolt", GenMeshCube(2.0f, 2.0f, 20.0f));
     R.AddModelFromMesh("skyModel", GenMeshCube(1.0f, 1.0f, 1.0f));
-    R.AddModelFromMesh("waterModel",GenMeshPlane(50000, 50000, 1, 1));
+    // R.AddModelFromMesh("waterModel",GenMeshPlane(50000, 50000, 1, 1));
+    R.AddModelFromMesh("waterModel", GenMeshCylinder(16000.0f, 1.0f, 128));
     R.AddModelFromMesh("ceilingPlane", GenMeshPlane(1.0f, 1.0f, 1, 1)); //we can scale it later. 
     R.AddModelFromMesh("shadowQuad",GenMeshPlane(1.0f, 1.0f, 1, 1)); //still used for enemy shadows
     
@@ -392,7 +393,7 @@ Vector3 MakeTerrainWaterColor(Vector3 skyTopColor)
 
     Vector3 oceanBlue = { 0.10f, 0.55f, 1.00f };
 
-    float blueMix = 0.45f; // higher = bluer, lower = more sky-colored
+    float blueMix = 0.25f; // higher = bluer, lower = more sky-colored
 
     Vector3 c = {
         Lerp(skyTopColor.x, oceanBlue.x, blueMix),
@@ -589,8 +590,8 @@ void ResourceManager::SetTerrainShaderValues(){ //plus palm tree shader
     // --- Fog and sky
     Vector3 skyTop  = ShaderSetup::GetCurrentSkyTopFogColor();
     Vector3 skyHorz = ShaderSetup::GetCurrentSkyFogColor();//{0.60f, 0.80f, 0.95f};
-    float fogStart  = 8500.0f;
-    float fogEnd    = 20000.0f;
+    float fogStart  = 1000.0f; //fog start set every frame in update shaders
+    float fogEnd    = 23000.0f;
     float seaLevel  = 400.0f;
     float falloff   = 0.002f;
 
@@ -805,8 +806,11 @@ void ResourceManager::UpdateShaders(Camera& camera){
     int modelNightDarknessLoc = GetShaderLocation(treeShader, "u_ModelNightDarkness");
     //Move this to ShaderSetup
 
-    float fogStart = (currentGameState == GameState::Menu) ? 5000 : 100;
-    int useFog = 1;//(currentGameState == GameState::Menu) ? 0 : 1; //dont render fog in menu. 
+    float fogStart = (currentGameState == GameState::Menu) ? 3000 : 2000;
+    SetShaderValue(treeShader, fogStartLoc,&fogStart, SHADER_UNIFORM_FLOAT);
+    int useFog = 1;//(currentGameState == GameState::Menu) ? 0 : 1; //dont render fog in menu.
+    
+
 
     SetShaderValue( terrainShader, useFogLoc, &useFog, SHADER_UNIFORM_INT);
 

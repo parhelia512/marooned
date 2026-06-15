@@ -156,8 +156,9 @@ void HintManager::UpdateTutorial(){
         SetMessage("RIGHT CLICK WITH CROSSBOW TO FIRE HARPOON");
     }
     //boat 
-    float pdist = Vector3Distance(player.position, player_boat.position);
-    if (player_boat.showMessage && pdist < 500.0f){
+    if (player_boat.active && player_boat.showMessage && 
+        Vector3DistanceSqr(player.position, player_boat.position) < 500.0f * 500.0f)
+    {
         player_boat.showMessage = false;
         SetMessage("Press E to board boat");
     }
