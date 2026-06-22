@@ -686,12 +686,12 @@ void DrawSwordSlash(SlashEffect& slash)
         // Tail below head, so the bright head appears toward the top.
         tail = {
             slash.pos.x,
-            slash.pos.y + slash.length
+            slash.pos.y - slash.length
         };
 
         mid = {
             (head.x + tail.x) * 0.5f,
-            (head.y + tail.y) * 0.5f
+            (head.y + tail.y) * 0.7f
         };
     }
     else

@@ -31,6 +31,7 @@ Vector3 NormalizeXZ(Vector3 v);
 Vector3 RandomPointOnRingXZ(const Vector3& center, float minR, float maxR);
 Vector3 RandomPointOnHeightmapRingXZ( const Vector3& center, float minR, float maxR, int terrainWidthPx, float terrainScale, float edgeMargin = 0.0f);
 float DistXZ(const Vector3& a, const Vector3& b);
+
 inline float Rand01() { return (float)GetRandomValue(0, 1000) / 1000.0f; }
 Vector3 DirFromYawDeg(float yawDeg);
 float DirectionToYawDeg(Vector3 dir);

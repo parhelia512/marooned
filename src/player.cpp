@@ -733,37 +733,31 @@ void UpdateMeleeHitbox(Camera& camera)
 
     Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, { 0.0f, 1.0f, 0.0f }));
 
-    // Arc settings.
-    // Tune these while drawing debug boxes.
     const int boxCount = 5;
+    const int activeWidth = 2;
+
     const float range = 200.0f;
     const float arcWidth = 220.0f;
-    const float closeRange = 70.0f;
 
     const Vector3 boxSize = { 45.0f, 60.0f, 45.0f };
 
-    for (int i = 0; i < boxCount; ++i)
+    float sweepT = 0.0f;
+
+    if (meleeWeapon.hitboxActive)
     {
-        float t = 0.0f;
+        sweepT = meleeWeapon.hitboxTimer / meleeWeapon.hitboxDuration;
+    }
+    else if (magicStaff.hitboxActive)
+    {
+        sweepT = magicStaff.hitboxTimer / magicStaff.hitboxDuration;
+    }
 
-        if (boxCount > 1)
-            t = (float)i / (float)(boxCount - 1);
+    sweepT = Clamp(sweepT, 0.0f, 0.999f);
 
-        // -1 left, 0 center, +1 right
-        float side = (t * 2.0f) - 1.0f;
-
-        // Makes the center boxes farther forward and side boxes slightly closer,
-        // giving it a curved/fan shape instead of a flat line.
-        float forwardDist = range - fabsf(side) * 50.0f;
-
-        Vector3 center = player.position;
-        center = Vector3Add(center, Vector3Scale(forward, forwardDist));
-        center = Vector3Add(center, Vector3Scale(right, side * arcWidth * 0.5f));
-
-        // Put the hitboxes roughly at chest/weapon height.
-        center.y += 0.0f;
-
+    auto PushBox = [&](Vector3 center)
+    {
         BoundingBox box;
+
         box.min = {
             center.x - boxSize.x * 0.5f,
             center.y - boxSize.y * 0.5f,
@@ -777,6 +771,82 @@ void UpdateMeleeHitbox(Camera& camera)
         };
 
         player.meleeVolume.boxes.push_back(box);
+    };
+
+    switch (meleeWeapon.currentAttack)
+    {
+        case SwordAttackType::RightSlash:
+        {
+            // Right side toward center: 4 -> 3 -> 2
+            const int startIndex = boxCount - 1;
+            const int endIndex = boxCount / 2;
+
+            int activeIndex = startIndex - (int)(sweepT * 3.0f);
+            activeIndex = (int)Clamp((float)activeIndex, (float)endIndex, (float)startIndex);
+
+            for (int i = 0; i < boxCount; ++i)
+            {
+                if (abs(i - activeIndex) > activeWidth - 1)
+                    continue;
+
+                float t = (float)i / (float)(boxCount - 1);
+                float side = (t * 2.0f) - 1.0f;
+
+                float forwardDist = range - fabsf(side) * 50.0f;
+
+                Vector3 center = player.position;
+                center = Vector3Add(center, Vector3Scale(forward, forwardDist));
+                center = Vector3Add(center, Vector3Scale(right, side * arcWidth * 0.5f));
+
+                PushBox(center);
+            }
+        } break;
+
+        case SwordAttackType::LeftSlash:
+        {
+            // Left side toward center: 0 -> 1 -> 2
+            const int startIndex = 0;
+            const int endIndex = boxCount / 2;
+
+            int activeIndex = startIndex + (int)(sweepT * 3.0f);
+            activeIndex = (int)Clamp((float)activeIndex, (float)startIndex, (float)endIndex);
+
+            for (int i = 0; i < boxCount; ++i)
+            {
+                if (abs(i - activeIndex) > activeWidth - 1)
+                    continue;
+
+                float t = (float)i / (float)(boxCount - 1);
+                float side = (t * 2.0f) - 1.0f;
+
+                float forwardDist = range - fabsf(side) * 50.0f;
+
+                Vector3 center = player.position;
+                center = Vector3Add(center, Vector3Scale(forward, forwardDist));
+                center = Vector3Add(center, Vector3Scale(right, side * arcWidth * 0.5f));
+
+                PushBox(center);
+            }
+        } break;
+
+        case SwordAttackType::Stab:
+        {
+            // Three boxes straight forward.
+            // This makes the stab feel narrow but deep.
+            const int stabBoxCount = 3;
+            const float startDist = 80.0f;
+            const float spacing = 55.0f;
+
+            for (int i = 0; i < stabBoxCount; ++i)
+            {
+                float forwardDist = startDist + spacing * (float)i;
+
+                Vector3 center = player.position;
+                center = Vector3Add(center, Vector3Scale(forward, forwardDist));
+
+                PushBox(center);
+            }
+        } break;
     }
 
 }
@@ -1427,8 +1497,8 @@ void DrawPlayer(const Player& player, Camera& camera) {
         }
     }
 
-    //DrawMeleeVolumeDebug(player.meleeVolume);
-    //DrawBoundingBox(player.meleeHitbox, WHITE);
+    DrawMeleeVolumeDebug(player.meleeVolume);
+
 }
 
 

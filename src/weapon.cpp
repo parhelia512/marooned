@@ -333,7 +333,7 @@ void MeleeWeapon::UpdateLeftSlashMotion(float t)
     horizontalSwingOffset = arc * horizontalSwingAmount * 2.0f;
 
     // left slash starts more to the left side of screen
-    attackSideOffset = -25.0f;
+    attackSideOffset = -8.0f;
 
     // maybe pull it slightly forward so it does not feel buried in the camera
     attackForwardOffset = 20.0f;
@@ -375,7 +375,7 @@ void MeleeWeapon::UpdateStabMotion(float t)
         jab = 1.0f - p;
     }
 
-    swingOffset = jab * 75.0f;
+    swingOffset = jab * 65.0f;
 
     horizontalSwingOffset = 0.0f;
     verticalSwingOffset = -10.0f;
@@ -429,20 +429,6 @@ void MeleeWeapon::Update(float deltaTime) {
                 break;
         }
 
-        // float t = swingTimer / swingDuration;
-        // float speedFactor = 2.0f;  // higher = faster downstroke
-        // float tFast = Clamp(t * speedFactor, 0.0f, 1.0f);
-
-        // float arc = sinf(tFast * (PI * 0.6f));
-
-        // swingOffset = arc * swingAmount;
-
-
-        // // tweak vertical so the sword ends low and forward
-        // float halfArc = arc; // reuse
-        // verticalSwingOffset   = -halfArc * verticalSwingAmount*2;
-        // horizontalSwingOffset = -halfArc * horizontalSwingAmount*3;
-
         // Delay turning off swinging until next frame
         if (swingTimer >= swingDuration) {
             swinging = false;
@@ -490,6 +476,8 @@ void MeleeWeapon::Update(float deltaTime) {
         if (hitboxTimer > hitboxDuration) {
             hitboxActive = false;
         }
+    }else{
+        hitboxTimer = 0.0f;
     }
 
     // 🔹 Smoothly raise weapon from dipped state
@@ -723,14 +711,11 @@ void MeleeWeapon::StartSwing(Camera& camera) {
         currentAttack = GetComboAttack(comboIndex);
 
         //player swipe with code triggers here. 
-        Vector2 basePos = { GetScreenWidth() * 0.60f, GetScreenHeight() * 0.70f };
-        //SpawnSwordSlash(basePos);
-
         SpawnSwordSlashForAttack(currentAttack);
         // Reset combo timer because we successfully continued/started the chain
         comboTimer = 0.0f;
         
-        player.attackId++; //for unique id each attack, so eggs are only damaged once. 
+        player.attackId++; //for unique id each attack
         swinging = true;
         swingTimer = 0.0f;
         timeSinceLastSwing = 0.0f;
@@ -746,26 +731,8 @@ void MeleeWeapon::StartSwing(Camera& camera) {
             comboIndex = 0;
         }
 
-
-        switch (currentAttack)
-        {
-            case SwordAttackType::RightSlash:
-                TraceLog(LOG_INFO, "Sword combo: RightSlash");
-                break;
-
-            case SwordAttackType::LeftSlash:
-                TraceLog(LOG_INFO, "Sword combo: LeftSlash");
-                break;
-
-            case SwordAttackType::Stab:
-                TraceLog(LOG_INFO, "Sword combo: Stab");
-                break;
-        }
     }
-
-
 }
-
 
 void MeleeWeapon::PlaySwipe(){
 
