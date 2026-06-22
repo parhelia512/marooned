@@ -12,3 +12,7 @@ build/
 !dlls/
 !dlls/**
 !dlls/**/*.dll
+/.cache
+/.vs
+/.clangd
+/save.txt

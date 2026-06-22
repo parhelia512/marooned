@@ -30,7 +30,7 @@ static Rectangle GetSliderTrack(Rectangle r)
     };
 }
 
-static void HandleSliderMouse(Rectangle r, float& value, float minValue, float maxValue)
+static void HandleSliderMouse(Rectangle r, float& value, float minValue, float maxValue, bool &dragging, int &dragCount)
 {
     Vector2 m = GetMousePosition();
     Rectangle track = GetSliderTrack(r);
@@ -43,8 +43,21 @@ static void HandleSliderMouse(Rectangle r, float& value, float minValue, float m
         track.height + 24.0f
     };
 
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(m, hitbox))
-    {
+    bool mouseOn = CheckCollisionPointRec(m, hitbox);
+
+    // we count drag count to avoid being able to drag multiple sliders at once
+    if (mouseOn && dragCount == 0 && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+        dragging = true;
+        dragCount += 1;
+    }
+
+    if (dragging && !IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+        dragging = false;
+        dragCount -= 1;
+    }
+
+    if (dragging) {
+        float mouseX = Clamp(m.x, track.x, track.x + track.width);
         float t = (m.x - track.x) / track.width;
         t = Clamp(t, 0.0f, 1.0f);
 
@@ -951,31 +964,37 @@ namespace MainMenu
 
         if (s.showOptions)
         {
-            // selectedOption 0 is mouse sensitivity slider
-            Rectangle sliderRect = L.selectable[0];
-
             if (optionsInputLockTimer <= 0.0f){
+                int dragCount = s.sensitivitySliderDragging + s.drawDistanceSliderDragging + s.FOVSliderDragging;
 
-
+                // Mouse sensitivity slider
                 HandleSliderMouse(
-                    sliderRect,
+                    L.selectable[0],
                     GameSettings::mouseSensitivity,
                     GameSettings::minMouseSensitivity,
-                    GameSettings::maxMouseSensitivity
+                    GameSettings::maxMouseSensitivity,
+                    s.sensitivitySliderDragging,
+                    dragCount
                 );
 
+                // Draw distance slider
                 HandleSliderMouse(
                     L.selectable[1],
                     GameSettings::maxDrawDist,
                     GameSettings::minDrawDist,
-                    GameSettings::maxDrawDistLimit
+                    GameSettings::maxDrawDistLimit,
+                    s.drawDistanceSliderDragging,
+                    dragCount
                 );
 
+                // FOV slider
                 HandleSliderMouse(
                     L.selectable[2],
                     GameSettings::fovY,
                     GameSettings::minFovY,
-                    GameSettings::maxFovY
+                    GameSettings::maxFovY,
+                    s.FOVSliderDragging,
+                    dragCount
                 );
 
             

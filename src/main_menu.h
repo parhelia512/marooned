@@ -21,6 +21,10 @@ namespace MainMenu
         bool showMenu = true;
         const PreviewInfo* currentPreview = nullptr;
         float pressFlash[4] = { 0,0,0,0 }; // seconds remaining for “push” effect
+
+        bool sensitivitySliderDragging = false;
+        bool drawDistanceSliderDragging = false;
+        bool FOVSliderDragging = false;
     };
 
     enum class Action
