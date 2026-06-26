@@ -4,12 +4,12 @@
     {
       "label": "Build with Make",
       "type": "shell",
-      "command": "make",
+      "command": "C:/msys64/ucrt64/bin/mingw32-make.exe",
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": []
+      "problemMatcher": "$gcc"
     },
     {
       "label": "Run Game",

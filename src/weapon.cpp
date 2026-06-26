@@ -470,7 +470,7 @@ void MeleeWeapon::Update(float deltaTime) {
         comboIndex = 0;
     }
 
-    // Hitbox timing
+    //Hitbox timing
     if (hitboxActive) {
         hitboxTimer += deltaTime;
         if (hitboxTimer > hitboxDuration) {
@@ -479,6 +479,7 @@ void MeleeWeapon::Update(float deltaTime) {
     }else{
         hitboxTimer = 0.0f;
     }
+
 
     // 🔹 Smoothly raise weapon from dipped state
     const float equipReturnSpeed = 10.0f; // tweak to taste
@@ -805,6 +806,7 @@ void MagicStaff::StartSwing(Camera& camera) {
     PlaySwipe();
     player.attackId++;
     swinging = true;
+    swingDuration = 0.15;
     swingTimer = 0.0f;
     hitboxActive = false;
     hitboxTriggered = false;
@@ -812,6 +814,7 @@ void MagicStaff::StartSwing(Camera& camera) {
     //spawn slash effect
     Vector2 basePos = { GetScreenWidth() * 0.70f, GetScreenHeight() * 0.50f };
     SpawnSwordSlash(basePos);
+
 
     // Apply initial swing offsets
     swingOffset = -swingAmount;
@@ -834,19 +837,18 @@ void MagicStaff::Update(float deltaTime) {
 
 
     // Melee swing timer
-
-    if (swinging) {
+    if (swinging)
+    {
         swingTimer += deltaTime;
-        if (swingTimer >= hitWindowStart && swingTimer <= hitWindowEnd) {
-            hitboxActive = true;
-        }
+        hitboxActive = true;
 
-        if (swingTimer >= swingDuration) {
+        if (swingTimer >= swingDuration)
+        {
             swinging = false;
             hitboxActive = false;
             hitboxTriggered = false;
+            swingTimer = 0.0f;
         }
-
     }
 
 

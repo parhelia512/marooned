@@ -244,7 +244,7 @@ struct MagicStaff {
     MagicType magicType = MagicType::Fireball;
     // === Melee / Swinging ===
     float swingTimer = 0.0f;
-    float swingDuration = 1.0f;
+    float swingDuration = 0.6f;
     bool swinging = false;
 
     bool hitboxActive = false;
@@ -252,7 +252,7 @@ struct MagicStaff {
     float hitboxDuration = 0.25f;
 
     float hitWindowStart = 0.1f;
-    float hitWindowEnd = 0.25f;
+    float hitWindowEnd = 0.7f;
     bool hitboxTriggered = false;
 
     float cooldown = 1.0f;

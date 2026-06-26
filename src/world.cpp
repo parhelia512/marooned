@@ -208,94 +208,23 @@ void UpdateShadersPerFrame(float deltaTime,float ElapsedTime, Camera& camera){
     ShaderSetup::UpdateGhostShaderPerFrame(ShaderSetup::gGhost);
 }
 
+
+
 void StartCutScene(){
     //Middle island intro
-    CutsceneDesc intro;
+    
+    
     if (CurrentLevelIs("MiddleIsland") && first){ //only show cutscene the first time.
         //hard coded positions
 
-
-
-        Vector3 playerEyePos = player.position;
-        playerEyePos.y += 40.0f; // or whatever your camera/head offset is
-
-        float yawOffset = 20.0f * DEG2RAD;
-        Vector3 playerForward = GetForwardFromYaw(player.startRotationY + yawOffset);
-
-        //Vector3 playerForward = GetForwardFromYaw(player.startRotationY);
-
-        Vector3 playerViewTarget = Vector3Add(
-            playerEyePos,
-            Vector3Scale(playerForward, 10000.0f)
-        );
-
-        intro.startPos = { -10845.8, 975.138, 2969.99 };
-        intro.endPos = playerEyePos;
-        intro.endTarget = playerViewTarget;
-
-        //intro.startPos = { (float)dungeonWidth, 975.138f, -(float)dungeonWidth };
-        // intro.endPos   = player.position;//CameraSystem::Get().GetPlayerRig().cam.position;
-
-        // This is what the camera looks at for most of the cutscene.
-        intro.target   = { 0.0f, 200.0f, 0.0f };
-        intro.lockTarget = true;
-
-        intro.duration = 25.0f;
-        intro.arcHeight = 2000.0f;
-        intro.pathType = CutscenePathType::Arc;
-        intro.returnToPlayerOnFinish = true;
-
-        intro.mergeToPlayerViewAtEnd = true;
-        intro.mergeStartT = 0.5f;
-
-        CameraSystem::Get().StartCutscene(intro);
+        //StartIslandIntro(); 
+        StartIslandWaypointIntro(); //way point intro
         ShaderSetup::gBloom.letterboxTarget = 0.14f;
-        // intro.endPos   = player.position;
-        // intro.target   = { 0.0f, 200.0f, 0.0f };
-
-        // intro.duration = 25.0f;
-        // intro.arcHeight = 2000.0f;
-        // intro.pathType = CutscenePathType::Arc;
-        // intro.returnToPlayerOnFinish = true;
-
-        // CameraSystem::Get().StartCutscene(intro);
-        // ShaderSetup::gBloom.letterboxTarget = 0.14f;
 
     }else if (CurrentLevelIs("Dungeon1")){
-
-        //center
-        //Vector3(3460.73, 660.262, 3206.36)
-
-        Vector3 playerEyePos = player.position;
-        playerEyePos.y += 40.0f; // or whatever your camera/head offset is
-
-        float yawOffset = 20.0f * DEG2RAD;
-        Vector3 playerForward = GetForwardFromYaw(player.startRotationY + yawOffset);
-
-        Vector3 playerViewTarget = Vector3Add(
-            playerEyePos,
-            Vector3Scale(playerForward, 10000.0f)
-        );
-
-        intro.endPos = playerEyePos;
-        intro.endTarget = playerViewTarget;
-        intro.startPos = { (float)dungeonWidth, 975.138f, -(float)dungeonWidth };
-        // intro.endPos   = player.position;//CameraSystem::Get().GetPlayerRig().cam.position;
-
-        // This is what the camera looks at for most of the cutscene.
-        intro.target   = player.position;
-        intro.lockTarget = true;
-
-        intro.duration = 15.0f;
-        intro.arcHeight = 2500.0f;
-        intro.pathType = CutscenePathType::Arc;
-        intro.returnToPlayerOnFinish = true;
-
-        intro.mergeToPlayerViewAtEnd = true;
-        intro.mergeStartT = 0.5f;
-
-        CameraSystem::Get().StartCutscene(intro);
+        StartDungeonHallwayIntro();
         ShaderSetup::gBloom.letterboxTarget = 0.14f;
+
 
     }else{
         CameraSystem::Get().SetMode(CamMode::Player);
@@ -303,9 +232,237 @@ void StartCutScene(){
 
 }
 
+static Vector3 LookBetween(Vector3 a, Vector3 b, float lookY, float amount = 0.99f)
+{
+    Vector3 p = Vector3Lerp(a, b, amount);
+    p.y = lookY;
+    return p;
+}
+
+void StartIslandIntro(){
+    CutsceneDesc intro;
+    Vector3 playerEyePos = player.position;
+    playerEyePos.y += 40.0f; // or whatever your camera/head offset is
+
+    float yawOffset = 20.0f * DEG2RAD;
+    Vector3 playerForward = GetForwardFromYaw(player.startRotationY + yawOffset);
+
+    Vector3 playerViewTarget = Vector3Add(
+        playerEyePos,
+        Vector3Scale(playerForward, 10000.0f)
+    );
+
+    intro.startPos = { -10845.8, 975.138, 2969.99 };
+    intro.endPos = playerEyePos;
+    intro.endTarget = playerViewTarget;
+
+
+    // This is what the camera looks at for most of the cutscene.
+    intro.target   = { 0.0f, 200.0f, 0.0f };
+    intro.lockTarget = true;
+
+    intro.duration = 25.0f;
+    intro.arcHeight = 2000.0f;
+    intro.pathType = CutscenePathType::Arc;
+    intro.returnToPlayerOnFinish = true;
+
+    intro.mergeToPlayerViewAtEnd = true;
+    intro.mergeStartT = 0.5f;
+
+    CameraSystem::Get().StartCutscene(intro);
+
+}
+
+void StartOrbitalIntro()
+{
+
+}
+
+void StartIslandWaypointIntro()
+{
+    CameraSystem& camSys = CameraSystem::Get();
+
+    Vector3 playerCamPos;
+    Vector3 playerCamTarget;
+    camSys.GetPlayerCameraPose(playerCamPos, playerCamTarget);
+
+    WaypointCutsceneDesc desc;
+    desc.snapOnStart = true;
+    desc.returnToPlayerOnFinish = true;
+    desc.hideCeiling = false;
+
+
+    //Work In Progress
+    const float camY = 1800.0f;
+    const float lookY = 300.0f;
+
+    Vector3 startPos    = Vector3{ 5475.0f,   camY, -5665.0f };
+    Vector3 rightIsland = Vector3{-8254.4, camY, -8892.74};
+    Vector3 farIsland   = Vector3{-8722.67, camY, 9487.32 };
+    Vector3 leftIsland  = Vector3{ 8281.82, camY, 8645.83};
+    Vector3 middle = Vector3{ 0, camY, 0};
+
+
+
+    Vector3 p0 = farIsland;
+    Vector3 p1 = middle;
+    Vector3 p2 = startPos;
+    // Vector3 p3 = leftIsland;
+    // Vector3 p4 = startPos;
+
+    CameraWaypoint w0;
+    w0.position = p0;
+    w0.target = Vector3{0, 400, 0};
+    w0.durationToNext = 15.0f;
+    desc.points.push_back(w0);
+
+    CameraWaypoint w1;
+    w1.position = p1;
+    w1.target =  startPos;
+    w1.durationToNext = 15.0f;
+    desc.points.push_back(w1);
+
+    CameraWaypoint w2;
+    w2.position = playerCamPos;
+    w2.target =  playerCamTarget;
+    w2.durationToNext = 0.0f;
+    desc.points.push_back(w2);
+
+    // CameraWaypoint w3;
+    // w3.position = p3;
+    // w3.target =  Vector3{0};
+    // w3.durationToNext = 9.0f;
+    // desc.points.push_back(w3);
+
+    // Circle back near the start before merging.
+    // CameraWaypoint w4;
+    // w4.position = p4;
+    // w4.target = playerCamTarget;
+    // w4.durationToNext = 2.0f;
+    // desc.points.push_back(w4);
+
+    // // Final exact player camera merge.
+    // CameraWaypoint w5;
+    // w5.position = playerCamPos;
+    // w5.target = playerCamTarget;
+    // w5.durationToNext = 0.0f;
+    // desc.points.push_back(w5);
+
+    camSys.StartWaypointCutscene(desc);
+}
+
+void StartKrakenScene()
+{
+    GameSettings::drawMinimap = false;
+    CameraSystem& camSys = CameraSystem::Get();
+
+    Vector3 playerCamPos;
+    Vector3 playerCamTarget;
+    camSys.GetPlayerCameraPose(playerCamPos, playerCamTarget);
+
+
+    const float camY = 300.0f;     // tweak
+    const float lookY = 260.0f;    // tweak
+
+    Vector3 p0 = DungeonTileCenter(27, 29, dungeonWidth, dungeonHeight, tileSize, camY);
+    Vector3 p1 = DungeonTileCenter(24,  21, dungeonWidth, dungeonHeight, tileSize, camY);
+    Vector3 p2 = DungeonTileCenter(43,  21, dungeonWidth, dungeonHeight, tileSize, camY);
+
+
+
+    Vector3 middleDeck = DungeonTileCenter(24, 21, dungeonWidth, dungeonHeight, tileSize, lookY);
+    Vector3 krakenPos = gKraken.startPos;//DungeonTileCenter(2, 7, dungeonWidth, dungeonHeight, tileSize, lookY);
+
+    WaypointCutsceneDesc desc;
+    desc.snapOnStart = true;
+    desc.returnToPlayerOnFinish = true;
+    desc.hideCeiling = false;
+
+    CameraWaypoint w0;
+    w0.position = p0;
+    w0.target = middleDeck;
+    w0.durationToNext = 9.0f;
+    desc.points.push_back(w0);
+
+    CameraWaypoint w1;
+    w1.position = p1;
+    w1.target = krakenPos;
+    w1.durationToNext = 6.0f;
+    desc.points.push_back(w1);
+
+    CameraWaypoint w2;
+    w2.position = p2;
+    w2.target = krakenPos;
+    w2.durationToNext = 3.0f;
+    desc.points.push_back(w2);
+
+    //w3
+
+    CameraWaypoint w3;
+    w3.position = playerCamPos;
+    w3.target = playerCamTarget;
+    w3.durationToNext = 0.0f;
+    desc.points.push_back(w3);
+
+    camSys.StartWaypointCutscene(desc);
+}
+
+void StartDungeonHallwayIntro()
+{
+    GameSettings::drawMinimap = false;
+    CameraSystem& camSys = CameraSystem::Get();
+
+    Vector3 playerCamPos;
+    Vector3 playerCamTarget;
+    camSys.GetPlayerCameraPose(playerCamPos, playerCamTarget);
+
+
+    const float camY = 300.0f;     // tweak
+    const float lookY = 260.0f;    // tweak
+
+    Vector3 p0 = DungeonTileCenter(30, 1, dungeonWidth, dungeonHeight, tileSize, camY);
+    Vector3 p1 = DungeonTileCenter(8,  1, dungeonWidth, dungeonHeight, tileSize, camY);
+    Vector3 p2 = DungeonTileCenter(2,  7, dungeonWidth, dungeonHeight, tileSize, camY);
+
+    Vector3 lookDownHall = DungeonTileCenter(8, 1, dungeonWidth, dungeonHeight, tileSize, lookY);
+    Vector3 lookLeftRoom = DungeonTileCenter(2, 7, dungeonWidth, dungeonHeight, tileSize, lookY);
+
+    WaypointCutsceneDesc desc;
+    desc.snapOnStart = true;
+    desc.returnToPlayerOnFinish = true;
+    desc.hideCeiling = false;
+
+    CameraWaypoint w0;
+    w0.position = p0;
+    w0.target = lookDownHall;
+    w0.durationToNext = 9.0f;
+    desc.points.push_back(w0);
+
+    CameraWaypoint w1;
+    w1.position = p1;
+    w1.target = lookLeftRoom;
+    w1.durationToNext = 6.0f;
+    desc.points.push_back(w1);
+
+    CameraWaypoint w2;
+    w2.position = p2;
+    w2.target = playerCamTarget;
+    w2.durationToNext = 3.0f;
+    desc.points.push_back(w2);
+
+    CameraWaypoint w3;
+    w3.position = playerCamPos;
+    w3.target = playerCamTarget;
+    w3.durationToNext = 0.0f;
+    desc.points.push_back(w3);
+
+    camSys.StartWaypointCutscene(desc);
+}
+
 
 
 void InitLevel(LevelData& level, Camera& camera) {
+    (void)camera; //we may need this later. 
     //Make sure we end texture mode, was causing problems with terrain.
     EndTextureMode();
     DisableCursor();
@@ -506,6 +663,19 @@ void InitLevel(LevelData& level, Camera& camera) {
     InitPlayer(player, resolvedSpawn); //start at green pixel if there is one. otherwise level.startPos or first startPos
     InitWeaponBar();
 
+    PlayerView pv{
+        player.position,
+        player.rotation.y,
+        player.rotation.x,
+        player.isSwimming,
+        player.onBoard,
+        player_boat.position,
+        0.0f //dip
+        
+    };
+
+    CameraSystem::Get().SyncFromPlayer(pv); //synce to players rotation
+
     hasCrossbow = true;
     player.previousWeapon = WeaponType::Sword;
     player.activeWeapon = WeaponType::Crossbow;
@@ -538,7 +708,8 @@ void StartFadeOutFromTeleport() {
 }
 
 
-void StartFadeOutFromMenu(int LevelIndex) {
+void StartFadeOutFromMenu() {
+
     fadeSpeed = 1.0f;
     queuedLevel = levelIndex;
     gFadePhase = FadePhase::FadingOut;
@@ -563,7 +734,8 @@ void StartFadeInFromBlack() {
 
 // Called every frame before any world/menu update or rendering
 void UpdateFade(Camera& camera, float deltaTime) {
-
+    (void)deltaTime;
+    (void)camera;
     const float dt = FadeDt();
     switch (gFadePhase) {
     case FadePhase::FadingOut:
@@ -718,7 +890,7 @@ void DrawWaterPlane()
     //     dungeonWorldHeight * 0.5f
     // };
 
-    DrawModel(R.GetModel("waterModel"), Vector3{0}, 1.0f, WHITE);
+    DrawModel(R.GetModel("waterModel"), Vector3{0, 0, 0}, 1.0f, WHITE);
 }
 
 
@@ -775,6 +947,7 @@ void UpdateSlashEffects(float deltaTime){
 
 void HandleWaves(Camera& camera){
     //water
+    (void)camera;
     // update position (keep your existing waterModel)
     Vector3 waterCenter = {0.0f, waterHeightY, 0.0f};
     Matrix xform = MatrixTranslate(waterCenter.x, waterCenter.y + sinf(GetTime()*0.5f)*10.9f, waterCenter.z);
@@ -1144,7 +1317,7 @@ void UpdateKraken(float deltaTime){
         if (gKraken.isDead){
             t.isDead = true;
         }
-        t.Update(deltaTime, Vector3{0}, player, enemyPtrs);
+        t.Update(deltaTime, Vector3{0, 0, 0}, player, enemyPtrs);
 
         
     }
@@ -1364,7 +1537,7 @@ void InitNPCs() //spawn hermit on island.
     hermit.type = NPCType::Hermit;
     //(1304.0f, 316.0f, -1141.0f)
     Vector3 hermitStart = {4851.0f, 318.0f, -5552.0f};
-    Vector3 hermitFarIsland = {-5815.0f, 304.0f, 6359.0f};
+    //Vector3 hermitFarIsland = {-5815.0f, 304.0f, 6359.0f};
 
     Vector3 newHermitPos = hermitStart;
     if (levels[levelIndex].name == "River"){
@@ -1593,7 +1766,8 @@ void UpdateWorldFrame(float dt, Player& player) {
         player.rotation.x,
         player.isSwimming,
         player.onBoard,
-        player_boat.position
+        player_boat.position,
+        0.0f //dip
         
     };
     CameraSystem::Get().SyncFromPlayer(pv); //synce to players rotation

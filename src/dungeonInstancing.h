@@ -22,7 +22,7 @@ enum class DungeonInstanceKind
 
 struct DungeonInstanceSource
 {
-    Vector3 position = { 0 };
+    Vector3 position = { 0, 0, 0 };
     Matrix transform = {};
 
     DungeonInstanceKind kind = DungeonInstanceKind::FloorGray;
@@ -30,9 +30,9 @@ struct DungeonInstanceSource
 
 struct DungeonInstancingBatch
 {
-    Mesh mesh = { 0 };
-    Shader shader = { 0 };
-    Material material = { 0 };
+    Mesh mesh = {};
+    Shader shader;
+    Material material;
 
     std::vector<Matrix> transforms;
 

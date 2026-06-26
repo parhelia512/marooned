@@ -240,7 +240,7 @@ void GenerateSecrets(float baseY)
             Color c = dungeonPixels[y * dungeonWidth + x];
             if (!EqualsRGB(c, ColorOf(Code::SecretDoor))) continue;
 
-            SecretWall sw;
+            SecretWall sw{};
             sw.position = GetDungeonWorldPos(x, y, tileSize, baseY);
 
             // Neighbor checks
@@ -712,14 +712,14 @@ void GenerateInvisibleWalls(float baseY)
     }
 }
 
-static Vector3 CenterOfBoundsXZ(const BoundingBox& b)
-{
-    return {
-        (b.min.x + b.max.x) * 0.5f,
-        0.0f,
-        (b.min.z + b.max.z) * 0.5f
-    };
-}
+// static Vector3 CenterOfBoundsXZ(const BoundingBox& b)
+// {
+//     return {
+//         (b.min.x + b.max.x) * 0.5f,
+//         0.0f,
+//         (b.min.z + b.max.z) * 0.5f
+//     };
+// }
 
 
 
@@ -1438,14 +1438,6 @@ void GenerateSpiderWebs(float baseY)
 
             spiderWebs.push_back(web);
 
-            // Add to spiderWebs
-            // spiderWebs.push_back({
-            //     pos,
-            //     WHITE,
-            //     box,
-            //     false,
-            //     rotationY
-            // });
         }
     }
 }
@@ -2009,6 +2001,7 @@ void ConfigureHermitForLevel(NPC& hermit, bool isDungeonLevel)
 
 
 void GenerateHermitFromImage(float baseY) {
+    (void)baseY;
 
     for (int y = 0; y < dungeonHeight; y++) {
         for (int x = 0; x < dungeonWidth; x++) {
@@ -2289,6 +2282,7 @@ void GenerateKrakenFromImage(float baseY)
 }
 
 void GenerateTencalesFromImage(float baseY){
+    (void)baseY;
     for (int y = 0; y < dungeonHeight; y++) {
         for (int x = 0; x < dungeonWidth; x++) {
             Color current = dungeonPixels[y * dungeonWidth + x];
@@ -2365,6 +2359,7 @@ void GenerateInvisibleLightSources(float baseY){
 
 void GeneratePortalLights(float baseY) {
     //portals
+   (void)baseY;
     for (Portal& p : portals){
         LightSource L = MakeStaticTorch(p.position);
         L.colorTint = ColorToV3(p.tint);
@@ -2765,7 +2760,7 @@ void DrawSwitches(){
         {
 
             DrawPlane(planePos, Vector2{200.0f, 200.0f}, BLACK);
-            DrawModelEx(R.GetModel("floorTileGray"), triggerdPos, Vector3{0}, 0.0f, Vector3{350, 350, 350}, RED);
+            DrawModelEx(R.GetModel("floorTileGray"), triggerdPos, Vector3{0, 0, 0}, 0.0f, Vector3{350, 350, 350}, RED);
             break;
         }
 

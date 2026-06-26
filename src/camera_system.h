@@ -2,12 +2,14 @@
 #include "raylib.h"
 #include "rlgl.h"
 #include "raymath.h"
+#include <vector>
 
 enum class CamMode { Player, Free, Cinematic, Death};
 
 enum class CinematicKind {
     Orbit,
-    Cutscene
+    Cutscene,
+    Waypoints
 };
 
 enum class CutscenePathType {
@@ -48,6 +50,25 @@ struct CutsceneDesc {
     float mergeStartT = 0.75f;
 
     Vector3 endTarget{0,0,0};
+};
+
+struct CameraWaypoint {
+    Vector3 position{0,0,0};
+    Vector3 target{0,0,0};
+
+    // Time to move from this waypoint to the next waypoint.
+    // The last waypoint's duration is ignored.
+    float durationToNext = 1.0f;
+};
+
+struct WaypointCutsceneDesc {
+    std::vector<CameraWaypoint> points;
+
+    bool snapOnStart = true;
+    bool returnToPlayerOnFinish = true;
+
+    // Optional: draw ceiling off during fly-throughs, same as your current cutscene.
+    bool hideCeiling = false;
 };
 
 struct DeathCamState {
@@ -103,11 +124,11 @@ struct CinematicDesc {
     bool snapOnStart = true;     // if true, start exactly on orbit pose immediately
     float startAngleDeg = 180.0f; // where on the ring to start (deg). 180 gives you -Z side
 
-    // Optional: later if you want moving focus
     bool useDynamicFocus = false;
     Vector3 dynamicFocus{0,0,0};
 
-    bool bobHeight = false;
+    //up and down movements for orbital cam. 
+    bool bobHeight = false;        
     float bobAmount = 2000.0f;     // how far up/down
     float bobSpeed = 10.0f;       // cycles-ish per second feel
     float bobPhase = 0.0f;        // optional offset
@@ -156,6 +177,8 @@ public:
 
     bool IsPlayerMode() const { return GetMode() == CamMode::Player; }
 
+    void StartWaypointCutscene(const WaypointCutsceneDesc& desc);
+
     bool IsCutsceneActive() const { return cutsceneActive; }
     bool aspectSquare = false;
 
@@ -172,7 +195,8 @@ private:
     void UpdateOrbitCinematicCam(float dt);
     void UpdateDeathCam(float dt);
     void ApplyShake(float dt);
-
+    void UpdateWaypointCutsceneCam(float dt);
+    void SwitchToPlayerCamera();
 
     CamMode mode = CamMode::Player;
 
@@ -193,7 +217,12 @@ private:
 
     CutsceneDesc cutscene{};
     float cutsceneT = 0.0f;
-     bool cutsceneActive = false;
+    bool cutsceneActive = false;
+
+    WaypointCutsceneDesc waypointCutscene{};
+    int waypointIndex = 0;
+    float waypointT = 0.0f;
+    bool waypointActive = false;
     
 
 };

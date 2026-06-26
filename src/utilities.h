@@ -53,3 +53,5 @@ bool IsFacingTarget2D(Vector3 origin, Vector3 forward, Vector3 targetPos, float 
 Color TintFromDarkness(float darkness, Color base = {255,255,255,255});
 
 Vector3 MakeTerrainWaterColor(Vector3 skyTopColor);
+
+Vector3 DungeonTileCenter(int x, int y, int dungeonW, int dungeonH, float tileSize, float worldY);

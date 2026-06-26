@@ -356,3 +356,21 @@ Vector3 MakeTerrainWaterColor(Vector3 skyTopColor)
 
     return c;
 }
+
+Vector3 DungeonTileCenter(
+    int x,
+    int y,
+    int dungeonW,
+    int dungeonH,
+    float tileSize,
+    float worldY
+) {
+    int flippedY = dungeonH - 1 - y;
+    int flippedX = dungeonW - 1 - x;
+
+    Vector3 p;
+    p.x = flippedX * tileSize + tileSize * 0.5f;
+    p.y = worldY;
+    p.z = flippedY * tileSize + tileSize * 0.5f;
+    return p;
+}

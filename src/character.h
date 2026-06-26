@@ -122,7 +122,7 @@ public:
     float  prevDistToPlayer = -1.0f;   // for distance trend fallback
     Vector3 prevPos = {0,0,0};         // to compute velocity
     Vector3 fleeTarget = { 0, 0, 0 };
-    Vector3 harpoonTarget = {0};   // usually player position (updated each frame)
+    Vector3 harpoonTarget = {0, 0, 0};   // usually player position (updated each frame)
     unsigned int lastBulletIDHit = 2;
     int    approachStreak = 0;         // hysteresis counters
     int    leaveStreak    = 0;

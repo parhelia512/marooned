@@ -1,6 +1,13 @@
 # Compiler and common flags
-CC      := g++
+
+CXX     := C:/msys64/ucrt64/bin/g++.exe
+WINDRES := C:/msys64/ucrt64/bin/windres.exe
+
 CXXFLAGS:= -std=c++17 -Wall -Wextra -O2 -MMD -MP
+
+
+#CC      := g++
+#CXXFLAGS:= -std=c++17 -Wall -Wextra -O2 -MMD -MP
 
 # Sources / objects
 SRC := $(wildcard src/*.cpp)
@@ -44,14 +51,24 @@ endif
 all: $(OUT)
 
 $(OUT): $(OBJ)
-	$(CC) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
 
 src/%.o: src/%.cpp
-	$(CC) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# $(OUT): $(OBJ)
+# 	$(CC) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
+
+# src/%.o: src/%.cpp
+# 	$(CC) $(CXXFLAGS) -c $< -o $@
 
 # Windows resource compile rule (only used when $(RES) is in $(OBJ))
+# $(RES): $(RESRC)
+# 	windres $(RESRC) -O coff -o $@
+
+
 $(RES): $(RESRC)
-	windres $(RESRC) -O coff -o $@
+	$(WINDRES) $(RESRC) -O coff -o $@
 
 -include $(DEP)
 

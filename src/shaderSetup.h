@@ -69,8 +69,8 @@ namespace ShaderSetup
         int loc_darkness = -1;
             
 
-        Vector3 ghostTint = {0};// = {0.4f, 0.8f, 1.0f}; // spectral blue
-        Vector3 camPos = {0};
+        Vector3 ghostTint = {0, 0, 0};// = {0.4f, 0.8f, 1.0f}; // spectral blue
+        Vector3 camPos = {0, 0, 0};
         float alpha = 0.0f;
         float rimPow = 0.0f;;
         float rimStr = 0.0f;;

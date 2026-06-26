@@ -181,6 +181,7 @@ Camera3D& CameraSystem::Active() {
 const Camera3D& CameraSystem::Active() const {
     if (mode == CamMode::Player) return playerRig.cam;
     if (mode == CamMode::Free)   return freeRig.cam;
+
     return cinematicRig.cam;
 }
 
@@ -224,7 +225,7 @@ void CameraSystem::StartCutscene(const CutsceneDesc& desc)
     cineActive = false;
 
     mode = CamMode::Cinematic;
-    drawCeiling = false; //don't draw ceiling when in cinematic camera
+    //drawCeiling = false; //don't draw ceiling when in cinematic camera
 
     cinematicRig.fov = (playerRig.fov > 0.f) ? playerRig.fov : GameSettings::fovY;
     cinematicRig.cam.fovy = cinematicRig.fov;
@@ -287,6 +288,7 @@ void CameraSystem::UpdateCutsceneCam(float dt)
         cutsceneActive = false;
         drawCeiling = levels[gCurrentLevelIndex].hasCeiling; //turn ceilings back on
         ShaderSetup::gBloom.letterboxTarget = 0.0f;
+        GameSettings::drawMinimap = true; //turn minimap back on after waypoint cutscene. 
         if (cutscene.returnToPlayerOnFinish) {
             SnapAllToPlayer();
             SetMode(CamMode::Player);
@@ -296,6 +298,7 @@ void CameraSystem::UpdateCutsceneCam(float dt)
 
 void CameraSystem::GetPlayerCameraPose(Vector3& outPos, Vector3& outTarget) const
 {
+    
     Vector3 basePos = pv.onBoard
         ? Vector3Add(pv.boatPos, Vector3{0, 200.0f, 0})
         : pv.position;
@@ -640,6 +643,11 @@ void CameraSystem::UpdateCinematicCam(float dt) {
 
     if (cineKind == CinematicKind::Cutscene) {
         UpdateCutsceneCam(dt);
+        return;
+    }
+
+    if (cineKind == CinematicKind::Waypoints) {
+        UpdateWaypointCutsceneCam(dt);
         return;
     }
 

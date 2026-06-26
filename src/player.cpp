@@ -34,6 +34,7 @@ void InitPlayer(Player& player, Vector3 startPosition) {
     DebugPrintVector(player.position);
     player.startRotationY = levels[levelIndex].startingRotationY; //save facing direction as well. 
     player.rotation.y = player.startRotationY; 
+    player.rotation.x = 0.0f;
     if (levelIndex == 0 && unlockEntrances) player.rotation.y = 90.0f; //face opposite direction when leaving dungeon. 
     player.velocity = {0, 0, 0};
     player.grounded = false;
@@ -749,7 +750,7 @@ void UpdateMeleeHitbox(Camera& camera)
     }
     else if (magicStaff.hitboxActive)
     {
-        sweepT = magicStaff.hitboxTimer / magicStaff.hitboxDuration;
+        sweepT = magicStaff.swingTimer / magicStaff.swingDuration;
     }
 
     sweepT = Clamp(sweepT, 0.0f, 0.999f);
@@ -833,9 +834,13 @@ void UpdateMeleeHitbox(Camera& camera)
         {
             // Three boxes straight forward.
             // This makes the stab feel narrow but deep.
+            // const int stabBoxCount = 3;
+            // const float startDist = 80.0f;
+            // const float spacing = 55.0f;
+
             const int stabBoxCount = 3;
-            const float startDist = 80.0f;
-            const float spacing = 55.0f;
+            const float startDist = 115.0f;
+            const float spacing = 65.0f;
 
             for (int i = 0; i < stabBoxCount; ++i)
             {
@@ -1037,40 +1042,6 @@ void HandleVignette(Player& player, float deltaTime)
     }
 }
 
-// void HandleVignette(Player& player, float deltaTime){
-//     float baseVignette = 0.0f;
-//     if (player.state == PlayerState::Frozen){
-//         //vignetteFade += deltaTime * 0.25f; //keep vignette for longer if frozen
-//         ShaderSetup::gBloom.fadeToBlack += deltaTime * 0.25f;
-//         ShaderSetup::gBloom.vignetteMode = 1;
-//     }else if (player.quadDamage){
-//         //vignetteMode = 2;
-//         ShaderSetup::gBloom.vignetteMode = 2;
-//         float pulseSpeed = 4.0f;     // how fast it pulses
-//         float pulseAmount = 1.0f;   // how strong the pulse is
-//         float pulse = (sinf(GetTime() * pulseSpeed) + 1.0f) * 0.5f; // 0 to 1
-//         ShaderSetup::gBloom.vignetteIntensity = baseVignette + pulse * pulseAmount;
-//         //vignetteFade = 0.0f;
-//         ShaderSetup::gBloom.fadeToBlack = 0.0f;
-
-//     }else if (player.haste){
-//         //vignetteMode = 3;
-//         ShaderSetup::gBloom.vignetteMode = 3;
-//         ShaderSetup::gBloom.vignetteIntensity = 0.5f;
-
-//         ShaderSetup::gBloom.fadeToBlack = 0.0f;
-//         //vignetteFade = 0.0f;
-//     }else{
-//         //normal fade out. clamp to 1.
-//         //vignetteFade += deltaTime * 2.0f; 
-//         //ShaderSetup::gBloom.fadeToBlack = 0.0f;
-//         //ShaderSetup::gBloom.fadeToBlack += deltaTime * 2.0f;
-//         //ShaderSetup::gBloom.vignetteIntensity = Clamp(1.0f - ShaderSetup::gBloom.fadeToBlack, 0.0f, 1.0f);
-//     }
-
-
-
-// }
 
 void UpdatePlayer(Player& player, float deltaTime, Camera& camera) {
     HandleGamepadLook(deltaTime);
@@ -1459,7 +1430,6 @@ void DrawPlayer(const Player& player, Camera& camera) {
         DrawCapsule(player.position, Vector3 {player.position.x, player.height/2, player.position.z}, 5, 4, 4, RED);
         DrawBoundingBox(player.GetBoundingBox(), RED);
 
-
     }
 
     if (player.debugShowFootSamples)
@@ -1497,7 +1467,7 @@ void DrawPlayer(const Player& player, Camera& camera) {
         }
     }
 
-    //DrawMeleeVolumeDebug(player.meleeVolume);
+    DrawMeleeVolumeDebug(player.meleeVolume);
 
 }
 

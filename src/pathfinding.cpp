@@ -123,7 +123,7 @@ void ConvertImageToWalkableGrid(const Image& dungeonMap) {
 
             walkableBat[x][y] = !(black || purple || aqua || window ||
                  silver || skeleton || eventLocked || blue || yellow || woodWalls || woodWallHalf || nextLevelDoor); //bats cant fly over barrels for reasons
-        }   //bats can fly through windows? no
+        }   //bats can fly through windows? no, why not? 
     }
 }
 
@@ -185,6 +185,9 @@ bool FindFirstWalkableNeighbor(int tileX, int tileY, Vector2& outTile)
 
 bool IsSeeThroughForLOS(int x, int y)
 {
+
+    //for tile based LOS
+
     // Out of bounds = blocks LOS
     if (x < 0 || x >= (int)walkable.size())  return false;
     if (y < 0 || y >= (int)walkable[0].size()) return false;
@@ -195,7 +198,7 @@ bool IsSeeThroughForLOS(int x, int y)
     // Special case: lava is NOT walkable but still see-through for vision
     if (IsLavaTile(x, y)) return true;
 
-    //Void Tiles should be see through? 
+    //Void Tiles should be see through? it seems to just work with void tiles. they see the player and track over void. 
 
     // Everything else (walls, closed doors, barrels, etc) blocks LOS
     return false;

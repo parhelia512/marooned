@@ -184,3 +184,7 @@ void TeleportPlayerToEnd();
 void ToggleVSync();
 
 void UpdateOverlayInfo(DebugOverlayInfo& overlayInfo);
+void StartDungeonHallwayIntro();
+void StartIslandIntro();
+void StartIslandWaypointIntro();
+void StartKrakenScene();

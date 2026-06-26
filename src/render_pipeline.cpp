@@ -68,6 +68,10 @@ void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
         rlEnableDepthMask(); rlEnableDepthTest();
         //BeginBlendMode(BLEND_ALPHA);
 
+        if (CurrentLevelIs("Ship")){
+            DrawWaterPlane();
+            DrawCannons();
+        }
 
         if (!isDungeon){
 
@@ -77,9 +81,6 @@ void RenderMenuFrame(Camera3D& camera, Player& player, float dt) {
             VegetationInstanced::Draw(camera);
             DrawWaterPlane();
             DrawOverworldProps();
-
-
-
 
         }
         rlDisableDepthMask();
@@ -255,7 +256,7 @@ void RenderFrame(Camera3D& camera, Player& player, float dt) {
             if (controlPlayer) DrawUI();
 
             //draw mini map
-            if (isDungeon) miniMap.DrawMiniMap();
+            if (isDungeon && GameSettings::drawMinimap) miniMap.DrawMiniMap();
 
             //draw sword slash
             for (SlashEffect& s : gSlashEffects){

@@ -26,16 +26,6 @@ DungeonInstancingBatch gWoodHalfWallInstancing;
 
 void UpdateDungeonInstancingDebugCounts()
 {
-    int totalFloors = 0;
-
-    for (const DungeonInstanceSource& src : gDungeonInstanceSources)
-    {
-        if (src.kind == DungeonInstanceKind::FloorGray ||
-            src.kind == DungeonInstanceKind::FloorWood)
-        {
-            totalFloors++;
-        }
-    }
 
     GameSettings::gTotalDungeonInstanceCount =
         (int)gDungeonInstanceSources.size();
