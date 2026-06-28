@@ -28,7 +28,7 @@ int main() {
 
     if (GameSettings::useVsync) SetConfigFlags(FLAG_VSYNC_HINT); //disable for uncapped frame rate
     
-    int screenWidth = GameSettings::squareRes ? 1024 : 1600;
+    int screenWidth = GameSettings::squareRes ? 1024 : 1600; //square resolution for youtube shorts...
     int screenHeight = GameSettings::squareRes ? 1024 : 900;
     //normally start 1600x900 window, toggle fullscreen to fit to monitor.
 
@@ -64,7 +64,6 @@ int main() {
         MainMenu::InitLevelPreviewFromSavedLevel();
     }
 
-    //GameSettings::maxDrawDist = 20000.0f;
 
     //main game loop
     while (!WindowShouldClose()) {
@@ -113,6 +112,6 @@ int main() {
     CloseAudioDevice();
     CloseWindow();
 
-    system("pause"); // ← waits for keypress
+    //system("pause"); // ← waits for keypress
     return 0;
 }

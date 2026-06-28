@@ -214,7 +214,7 @@ inline float SmoothStepExp(float current, float target, float speed, float dt) {
 void CameraSystem::StartCutscene(const CutsceneDesc& desc)
 {
     cutscene = desc;
-
+    
     // Important: cutscene owns cinematic mode now
     cineKind = CinematicKind::Cutscene;
     cutsceneActive = true;
@@ -240,7 +240,7 @@ void CameraSystem::StartCutscene(const CutsceneDesc& desc)
 void CameraSystem::UpdateCutsceneCam(float dt)
 {
     if (!cutsceneActive) return;
-
+    player.canMove = false;
     cutsceneT += dt;
 
     float t = 1.0f;
@@ -287,10 +287,10 @@ void CameraSystem::UpdateCutsceneCam(float dt)
         cutsceneActive = false;
         drawCeiling = levels[gCurrentLevelIndex].hasCeiling; //turn ceilings back on
         ShaderSetup::gBloom.letterboxTarget = 0.0f;
-        GameSettings::drawMinimap = true; //turn minimap back on after waypoint cutscene. 
+        GameSettings::drawMinimap = true; //turn minimap back on after waypoint cutscene.
+        player.canMove = true; 
         if (cutscene.returnToPlayerOnFinish) {
-            SnapAllToPlayer();
-            SetMode(CamMode::Player);
+            SwitchToPlayerCamera();
         }
     }
 }

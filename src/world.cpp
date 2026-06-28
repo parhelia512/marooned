@@ -214,13 +214,12 @@ void UpdateShadersPerFrame(float deltaTime,float ElapsedTime, Camera& camera){
 
 void StartCutScene(){
     //Middle island intro
-    
-    
+
     if (CurrentLevelIs("MiddleIsland") && first){ //only show cutscene the first time.
         //hard coded positions
 
-        //StartIslandIntro(); 
-        StartIslandWaypointIntro(); //way point intro
+        StartIslandIntro(); 
+        //StartIslandWaypointIntro(); //way point intro
         ShaderSetup::gBloom.letterboxTarget = 0.14f;
 
     }else if (CurrentLevelIs("Dungeon1")){
@@ -245,7 +244,7 @@ void StartIslandIntro(){
     CutsceneDesc intro;
     Vector3 playerEyePos = player.position;
     playerEyePos.y += 40.0f; // or whatever your camera/head offset is
-
+    
     float yawOffset = 20.0f * DEG2RAD;
     Vector3 playerForward = GetForwardFromYaw(player.startRotationY + yawOffset);
 
@@ -298,11 +297,14 @@ void StartIslandWaypointIntro()
     const float camY = 1800.0f;
     //const float lookY = 300.0f;
 
-    Vector3 startPos    = Vector3{ 5475.0f,   camY, -5665.0f };
+    //Vector3 startPos    = Vector3{ 5475.0f,   camY, -5665.0f };
     //Vector3 rightIsland = Vector3{-8254.4, camY, -8892.74};
     Vector3 farIsland   = Vector3{-8722.67, camY, 9487.32 };
     //Vector3 leftIsland  = Vector3{ 8281.82, camY, 8645.83};
-    Vector3 middle = Vector3{ 0, camY, 0};
+
+
+    //Vector3(-940.195, 653.18, 840.402)
+    Vector3 middle = Vector3{ -940.0f, camY, -840.0f};
 
 
 
@@ -314,13 +316,13 @@ void StartIslandWaypointIntro()
 
     CameraWaypoint w0;
     w0.position = p0;
-    w0.target = Vector3{0, 400, 0};
+    w0.target = Vector3{0, 300, 0};
     w0.durationToNext = 15.0f;
     desc.points.push_back(w0);
 
     CameraWaypoint w1;
     w1.position = p1;
-    w1.target =  startPos;
+    w1.target =  Vector3{0, camY, 0};
     w1.durationToNext = 15.0f;
     desc.points.push_back(w1);
 
@@ -368,7 +370,7 @@ void StartKrakenScene()
 
     Vector3 p0 = DungeonTileCenter(27, 29, dungeonWidth, dungeonHeight, tileSize, camY);
     Vector3 p1 = DungeonTileCenter(24,  21, dungeonWidth, dungeonHeight, tileSize, camY);
-    Vector3 p2 = DungeonTileCenter(43,  21, dungeonWidth, dungeonHeight, tileSize, camY);
+    Vector3 p2 = DungeonTileCenter(43,  21, dungeonWidth, dungeonHeight, tileSize, camY+200);
 
 
 
@@ -401,10 +403,16 @@ void StartKrakenScene()
     //w3
 
     CameraWaypoint w3;
-    w3.position = playerCamPos;
-    w3.target = playerCamTarget;
-    w3.durationToNext = 0.0f;
+    w3.position = p1;
+    w3.target = krakenPos;
+    w3.durationToNext = 3.0f;
     desc.points.push_back(w3);
+
+    CameraWaypoint w4;
+    w4.position = playerCamPos;
+    w4.target = playerCamTarget;
+    w4.durationToNext = 0.0f;
+    desc.points.push_back(w4);
 
     camSys.StartWaypointCutscene(desc);
 }

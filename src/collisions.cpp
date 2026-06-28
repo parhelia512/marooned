@@ -757,30 +757,43 @@ void CheckBulletHits(Camera& camera) {
 
         // 🔹 2. Hit enemy
         for (Character* enemy : enemyPtrs) {
+            if (enemy == nullptr) continue;
             if (enemy->isDead) continue;
-            bool isSkeleton = (enemy->type == CharacterType::Skeleton);
+
+            bool isSkeleton = (enemy->type == CharacterType::Skeleton); 
             bool isZombie = (enemy->type == CharacterType::Zombie);
-            if (CheckCollisionBoxSphere(enemy->GetBoundingBox(), b.GetPosition(), b.GetRadius())) {
-                if (!b.IsEnemy() && (b.type == BulletType::Default)) {
 
+            BoundingBox box = enemy->GetBoundingBox();
 
-                    if (b.hermit){
-                        enemy->TakeDamage(10); // bullet shouldn't deal the damage, hermit deals damage directly incase of a miss.
-                        //if bullet actually hits target, deal 10 damage bonus i guess. 
+            if (CheckCollisionBoxSphere(box, b.GetPosition(), b.GetRadius()))
+            {
+                if (!b.IsEnemy() && b.type == BulletType::Default)
+                {
+                    if (b.hermit)
+                    {
+                        enemy->TakeDamage(10);
                         b.alive = false;
                         b.exploded = true;
                         break;
                     }
 
-                    int extraD = 0;
-                    if (enemy->state == CharacterState::Harpooned) extraD = 20;//enemies take more damage when harpooned. 
-                    enemy->TakeDamage((int)b.ComputeDamage() + extraD); //damage based on bullets velocity, base 10 damage for blunderbuss
-                    BoundingBox box = enemy->GetBoundingBox(); //we leave an aweful lot up to chance, but it plays well. 
                     Vector3 n = AABBHitNormal(box, b.position);
-                    b.alive = TryBulletRicochet(b, n, 0.6f, 500, 0.99); //0.9 cosign threshhold makes headon bullets get absorbed by enemy. 
-                    break;
 
-                }else if (b.type == BulletType::Bolt){
+                    int extraD = 0;
+                    if (enemy->state == CharacterState::Harpooned)
+                    {
+                        extraD = 20;
+                    }
+
+                    const int damage = static_cast<int>(b.ComputeDamage()) + extraD;
+
+                    enemy->TakeDamage(damage);
+
+                    b.alive = TryBulletRicochet(b, n, 0.6f, 500, 0.99f);
+                    b.exploded = b.alive;
+                    break;
+                }
+                else if (b.type == BulletType::Bolt){
                     if (b.id != enemy->lastBulletIDHit){
                         enemy->TakeDamage(75 * qDamage);
                         enemy->lastBulletIDHit = b.id;

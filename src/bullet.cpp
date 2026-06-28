@@ -164,7 +164,7 @@ void Bullet::HandleBulletWorldCollision(){
     if (isDungeon) {
         if (drawCeiling && position.y >= ceilingHeight){
             Vector3 n = {0, 1, 0};
-            TryBulletRicochet(*this, n, 0.6f, 500, 0.99);
+            alive = TryBulletRicochet(*this, n, 0.6f, 500, 0.99);
 
         }
 
@@ -185,7 +185,7 @@ void Bullet::HandleBulletWorldCollision(){
         // Continuous check to avoid tunneling
         if (prevPosition.y > killFloorY && position.y <= killFloorY) {
             Vector3 n = {0, 1, 0};
-            TryBulletRicochet(*this, n, 0.6f, 500, 0.99);
+            alive = TryBulletRicochet(*this, n, 0.6f, 500, 0.99);
 
             return;
         }

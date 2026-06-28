@@ -68,10 +68,12 @@ void CameraSystem::UpdateWaypointCutsceneCam(float dt)
     if (!waypointActive) {
         return;
     }
+    player.canMove = false;
 
     if (waypointCutscene.points.size() < 2) {
         waypointActive = false;
         SetMode(CamMode::Player);
+
  
         return;
     }
@@ -83,11 +85,11 @@ void CameraSystem::UpdateWaypointCutsceneCam(float dt)
         drawCeiling = levels[gCurrentLevelIndex].hasCeiling;
         ShaderSetup::gBloom.letterboxTarget = 0.0f;
         GameSettings::drawMinimap = true; //turn minimap back on after waypoint cutscene.
-        
+        player.canMove = true;
         if (CurrentLevelIs("Ship")) SpawnManager::cutSceneFinished = true; //kraken cut scene finished. 
 
         if (waypointCutscene.returnToPlayerOnFinish) {
-            SnapAllToPlayer();
+            //SnapAllToPlayer();
             SwitchToPlayerCamera();
             
             //SetMode(CamMode::Player);
